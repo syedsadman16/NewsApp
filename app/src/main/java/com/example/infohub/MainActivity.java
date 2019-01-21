@@ -37,7 +37,7 @@ import java.util.concurrent.ExecutionException;
  */
 public class MainActivity extends AppCompatActivity {
     //FIRST SET INTERNET PERMISSIONS
-
+    static boolean resume = true;
 
     SQLiteDatabase database;
     ListView listView;
@@ -105,6 +105,15 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
+    public void refresh(View v){
+        Intent i = new Intent(getApplicationContext(), HomeActivity.class);
+        startActivity(i);
+
+    }
+
+
+
     public void updateContent(){
         Cursor cursor = database.rawQuery("SELECT * FROM events", null);
 
@@ -130,8 +139,9 @@ public class MainActivity extends AppCompatActivity {
 
     public class  ContentBackgroundTask extends AsyncTask<String, Void, String>{
 
-        @Override
-        protected String doInBackground(String... urls) {
+
+            @Override
+            protected String doInBackground (String...urls){
             URL url;
             HttpURLConnection connection;
             String result = "";
@@ -172,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     JSONObject jsonObject = new JSONObject(article);
-                   // Log.i("ArtcileLink", article);
+                    // Log.i("ArtcileLink", article);
                     if (!jsonObject.isNull("url")) {
 
 
@@ -186,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
 
                         //GET THE SUMMARY OF EACH ARTICLE
                         String summ = "";
-                        url = new URL("https://www.summarizebot.com/api/summarize?apiKey=31241703bbcd4c8999e1a588f4c67931&size=30&keywords=10&fragments=15&url="+u);
+                        url = new URL("https://www.summarizebot.com/api/summarize?apiKey=31241703bbcd4c8999e1a588f4c67931&size=30&keywords=10&fragments=15&url=" + u);
 
                         connection = (HttpURLConnection) url.openConnection();
                         in = connection.getInputStream();
@@ -199,26 +209,25 @@ public class MainActivity extends AppCompatActivity {
                             data = reader.read();
                         }
 
-                        JSONArray jArray  = new JSONArray(summ);
+                        JSONArray jArray = new JSONArray(summ);
                         JSONObject jObject = null;
 
                         String s1 = "";
                         String s2 = "";
 
                         jObject = jArray.getJSONObject(0);
-                        s1 = jObject.getString("summary" );
+                        s1 = jObject.getString("summary");
                         Log.i("Sum", s1);
 
                         JSONArray j2Array = new JSONArray(s1);
-                        for (int j = 0; j<j2Array.length(); j++) {
+                        for (int j = 0; j < j2Array.length(); j++) {
                             JSONObject object2 = j2Array.getJSONObject(j);
 
-                             s2 += object2.getString("sentence");
+                            s2 += object2.getString("sentence");
 
                         }
                         summaries.add(s2);
                         Log.i("Sum", s2);
-
 
 
                     }
@@ -226,14 +235,14 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 return result;
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 Log.e("Error", "ARTICLE NOT FOUND");
                 return null;
             }
 
         }
+
 
 
 /*
