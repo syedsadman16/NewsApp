@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.os.AsyncTask;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -37,7 +38,6 @@ import java.util.concurrent.ExecutionException;
  */
 public class MainActivity extends AppCompatActivity {
     //FIRST SET INTERNET PERMISSIONS
-    static boolean resume = true;
 
     SQLiteDatabase database;
     ListView listView;
@@ -55,25 +55,12 @@ public class MainActivity extends AppCompatActivity {
         database = this.openOrCreateDatabase("NewsDB", MODE_PRIVATE, null);
         database.execSQL("CREATE TABLE IF NOT EXISTS events (name VARCHAR, address VARCHAR, id INTEGER PRIMARY KEY)");
 
-        ContentBackgroundTask task = new ContentBackgroundTask();
-        task.execute("https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty");
-/*
-        //TEST SUMMARY API
-        try {
-            //DONT FORGET TO ADD .GET()
-            result = task.execute("https://www.summarizebot.com/api/summarize?apiKey=31241703bbcd4c8999e1a588f4c67931&size=30&keywords=10&fragments=15&url=https://www.theverge.com/2019/1/19/18189749/samsung-galaxy-s10-plus-three-variants-evan-blass-leaked-image-cameras").get();
-
-            Log.i("WebInfo", result);
-        }
-
-        catch (Exception e){
-            e.printStackTrace();
-        }
-*/
-
         listView = findViewById(R.id.listView);
         adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, stories);
         listView.setAdapter(adapter);
+
+        ContentBackgroundTask task = new ContentBackgroundTask();
+        task.execute("https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty");
 
         updateContent();
 
@@ -86,22 +73,24 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                summaries.get(position);
-                new AlertDialog.Builder(MainActivity.this)
-                        .setTitle("Quick Summary")
-                        .setMessage(summaries.get(position))
-                        .setPositiveButton("Close", null).show();
+                if (summaries.get(position) != null) {
+                    summaries.get(position);
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setTitle("Quick Summary")
+                            .setMessage(summaries.get(position))
+                            .setPositiveButton("Close", null).show();
 
-                Log.i("LongPress", summaries.get(position));
+                    Log.i("LongPress", summaries.get(position));
+
+                }
                 return true;
             }
         });
-
-
-
 
     }
 
@@ -109,7 +98,6 @@ public class MainActivity extends AppCompatActivity {
     public void refresh(View v){
         Intent i = new Intent(getApplicationContext(), HomeActivity.class);
         startActivity(i);
-
     }
 
 
@@ -141,63 +129,33 @@ public class MainActivity extends AppCompatActivity {
 
 
             @Override
-            protected String doInBackground (String...urls){
-            URL url;
-            HttpURLConnection connection;
-            String result = "";
+            protected String doInBackground (String...urls) {
+                URL url;
+                HttpURLConnection connection;
+                String result = "";
 
-            try {
-                //Get all the data for the article ID's
-                url = new URL(urls[0]);
-                connection = (HttpURLConnection) url.openConnection();
-                InputStream in = connection.getInputStream();
-                InputStreamReader reader = new InputStreamReader(in);
-                int data = reader.read();
-
-                while (data != -1) {
-                    char c = (char) data;
-                    result += c;
-                    data = reader.read();
-                }
-
-                //Now get each ID from the array
-                JSONArray jsonArray = new JSONArray(result);
-                database.execSQL("DELETE FROM events");
-
-                for (int i = 0; i < 25; i++) {
-                    String index = jsonArray.getString(i);
-
-                    //Put index inside the API website to get all the articles
-                    String article = "";
-                    url = new URL("https://hacker-news.firebaseio.com/v0/item/" + index + ".json?print=pretty");
+                try {
+                    //Get all the data for the article ID's
+                    url = new URL(urls[0]);
                     connection = (HttpURLConnection) url.openConnection();
-                    in = connection.getInputStream();
-                    reader = new InputStreamReader(in);
-                    data = reader.read();
+                    InputStream in = connection.getInputStream();
+                    InputStreamReader reader = new InputStreamReader(in);
+                    int data = reader.read();
 
                     while (data != -1) {
                         char c = (char) data;
-                        article += c;
+                        result += c;
                         data = reader.read();
                     }
 
-                    JSONObject jsonObject = new JSONObject(article);
-                    // Log.i("ArtcileLink", article);
-                    if (!jsonObject.isNull("url")) {
+                    JSONArray jsonArray = new JSONArray(result);
+                    database.execSQL("DELETE FROM events");
 
+                    for (int i = 0; i < 16; i++) {
+                        String index = jsonArray.getString(i);
 
-                        String title = jsonObject.getString("title");
-                        String u = jsonObject.getString("url");
-
-
-                        database.execSQL("INSERT INTO events (name, address) VALUES ('" + title + "','" + u + "');");
-                        // database.execSQL("INSERT INTO events (name, address) VALUES (title, u)");
-
-
-                        //GET THE SUMMARY OF EACH ARTICLE
-                        String summ = "";
-                        url = new URL("https://www.summarizebot.com/api/summarize?apiKey=31241703bbcd4c8999e1a588f4c67931&size=30&keywords=10&fragments=15&url=" + u);
-
+                        String article = "";
+                        url = new URL("https://hacker-news.firebaseio.com/v0/item/" + index + ".json?print=pretty");
                         connection = (HttpURLConnection) url.openConnection();
                         in = connection.getInputStream();
                         reader = new InputStreamReader(in);
@@ -205,91 +163,81 @@ public class MainActivity extends AppCompatActivity {
 
                         while (data != -1) {
                             char c = (char) data;
-                            summ += c;
+                            article += c;
                             data = reader.read();
                         }
 
-                        JSONArray jArray = new JSONArray(summ);
-                        JSONObject jObject = null;
+                        JSONObject jsonObject = new JSONObject(article);
 
-                        String s1 = "";
-                        String s2 = "";
+                        if (!jsonObject.isNull("url")) {
 
-                        jObject = jArray.getJSONObject(0);
-                        s1 = jObject.getString("summary");
-                        Log.i("Sum", s1);
 
-                        JSONArray j2Array = new JSONArray(s1);
-                        for (int j = 0; j < j2Array.length(); j++) {
-                            JSONObject object2 = j2Array.getJSONObject(j);
+                            String title = jsonObject.getString("title");
+                            String u = jsonObject.getString("url");
 
-                            s2 += object2.getString("sentence");
+                            database.execSQL("INSERT INTO events (name, address) VALUES ('" + title + "','" + u + "');");
+
+                            //GET THE SUMMARY OF EACH ARTICLE
+                            String summ = "";
+
+                            try {
+                                url = new URL("https://www.summarizebot.com/api/summarize?apiKey=31241703bbcd4c8999e1a588f4c67931&size=30&keywords=10&fragments=15&url=" + u);
+                                connection = (HttpURLConnection) url.openConnection();
+                                in = connection.getInputStream();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                return null;
+                            }
+
+                            reader = new InputStreamReader(in);
+                            data = reader.read();
+
+                            while (data != -1) {
+                                char c = (char) data;
+                                summ += c;
+                                data = reader.read();
+                            }
+
+                            if (summ != null) {
+
+                                JSONArray jArray = new JSONArray(summ);
+                                JSONObject jObject = null;
+
+                                String s1 = "";
+                                String s2 = "";
+
+                                jObject = jArray.getJSONObject(0);
+                                s1 = jObject.getString("summary");
+                                Log.i("Sum", s1);
+
+                                JSONArray j2Array = new JSONArray(s1);
+                                for (int j = 0; j < j2Array.length(); j++) {
+                                    JSONObject object2 = j2Array.getJSONObject(j);
+                                    s2 += object2.getString("sentence");
+                                }
+
+                                if (s2 != null) {
+                                    summaries.add(s2);
+                                    Log.i("Sum", s2);
+                                } else {
+                                    summaries.add("Summary not available");
+                                }
+
+                            }
 
                         }
-                        summaries.add(s2);
-                        Log.i("Sum", s2);
-
 
                     }
-
+                    return result;
                 }
-
-                return result;
-            } catch (Exception e) {
-                e.printStackTrace();
-                Log.e("Error", "ARTICLE NOT FOUND");
-                return null;
-            }
-
-        }
-
-
-
-/*
-                //TESTING OUT SUMMARY API WITH RANDOM ARTICLE
-                //Once u get the URL, paste it there.
-                //https://www.summarizebot.com/api/summarize?apiKey=31241703bbcd4c8999e1a588f4c67931&size=30&keywords=10&fragments=15&url=https://www.theverge.com/2019/1/19/18189749/samsung-galaxy-s10-plus-three-variants-evan-blass-leaked-image-cameras"
-
-
-
-                /THE JSON --> [{"summary": [{"id": 0, "weight": 3.35, "sentence":
-                try {
-
-                    JSONArray jArray  = new JSONArray(result);
-
-                // This is what we have [{"summary": [{"id": 0, "weight": 3.35, "sentence":
-                        JSONObject jObject = null;
-
-                        String s1 = "";
-                        //    for (int i = 0; i < jArray.length(); i++) {
-                        // Get summary object from array
-                        jObject = jArray.getJSONObject(0);
-                        s1 = jObject.getString("summary" );
-                        Log.i("Sum", s1);
-                        //[{"id": 0, "weight": 3.35, "sentence":
-                        //   }
-                        JSONArray j2Array = new JSONArray(s1);
-                        for (int j = 0; j<j2Array.length(); j++) {
-                            JSONObject object2 = j2Array.getJSONObject(j);
-                            //JSONObject sentence = object2.getJSONObject("sentence");
-                            //Get sentence object from array
-                            String s2 = object2.getString("sentence");
-                            Log.i("Sum", s2);
-                        }
-
-                        //    Log.i("Summary", articleContent);
-                } catch (Exception e) {
+                catch (Exception e) {
                     e.printStackTrace();
+                    Log.e("Error", "ARTICLE NOT FOUND");
+                    return null;
                 }
-                return result;
+
             }
 
-            catch (Exception e) {
-                e.printStackTrace();
-                Log.e("Error", "ARTICLE NOT FOUND");
-                return null;
-            }
-*/
 
 
         @Override
