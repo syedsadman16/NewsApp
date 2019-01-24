@@ -1,27 +1,21 @@
 package com.example.infohub;
 
-
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteStatement;
 import android.os.AsyncTask;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.InputStream;
@@ -29,41 +23,39 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.InputMismatchException;
-import java.util.concurrent.ExecutionException;
 
-/** Temporary Issues Fix:
- * Clean and Rebuild Project
- * Sync With Gradle
- * Add attribution link
- */
-public class MainActivity extends AppCompatActivity {
-    //FIRST SET INTERNET PERMISSIONS
+public class TopicActivity extends AppCompatActivity {
 
+    TopicBackgroundTask task;
     SQLiteDatabase database;
     ListView listView;
-    ArrayList<String> stories = new ArrayList<>();
+    ArrayList<String> titles = new ArrayList<>();
     ArrayList<String> links = new ArrayList<>();
     ArrayList<String> summaries = new ArrayList<>();
-    ContentBackgroundTask task;
     ArrayAdapter adapter;
     String result = "";
+    Intent intent;
+    TextView updatetopicName;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_topic);
 
-      //  database = this.openOrCreateDatabase("NewsDB", MODE_PRIVATE, null);
-        //  database.execSQL("CREATE TABLE IF NOT EXISTS events (name VARCHAR, address VARCHAR, id INTEGER PRIMARY KEY)");
-
-        listView = findViewById(R.id.listView);
-        adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, stories);
+        listView = findViewById(R.id.topicListView);
+        adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, titles);
         listView.setAdapter(adapter);
 
-        task = new ContentBackgroundTask();
+        task = new TopicBackgroundTask();
+
+        intent = getIntent();
+        String topic = intent.getStringExtra("topic");
         try {
-            String s = task.execute("https://newsapi.org/v2/top-headlines?country=us&category=technology&apiKey=5040cea2678445de93e1a6862c5aeeb3").get();
+            String topi = "technology";
+            task.execute("https://newsapi.org/v2/top-headlines?country=us&category="+ topi +"&apiKey=5040cea2678445de93e1a6862c5aeeb3").get();
+            updatetopicName = findViewById(R.id.updatetopicName);
+            updatetopicName.setText(topic);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -79,13 +71,12 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 try {
                     summaries.get(position);
-                    new AlertDialog.Builder(MainActivity.this)
+                    new AlertDialog.Builder(TopicActivity.this)
                             .setTitle("Summary")
                             .setMessage(summaries.get(position))
                             .setPositiveButton("Close", null).show();
@@ -105,42 +96,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void refresh(View v){
-        Intent i = new Intent(getApplicationContext(), HomeActivity.class);
-        startActivity(i);
-    }
 
-
-/*
-    public void updateContent(){
-        Cursor cursor = database.rawQuery("SELECT * FROM events", null);
-
-        //Pull from database
-        int nameIndex = cursor.getColumnIndex("name");
-        int addressIndex = cursor.getColumnIndex("address");
-
-        if(cursor.moveToFirst()){
-            stories.clear();
-            links.clear();
-            Log.i("name", cursor.getString(nameIndex));
-            Log.i("addy", cursor.getString(addressIndex));
-        }
-
-        do {
-            stories.add(cursor.getString(nameIndex));
-            links.add(cursor.getString(addressIndex));
-        } while (cursor.moveToNext());
-
-        adapter.notifyDataSetChanged();
-    }
-*/
-
-    public class  ContentBackgroundTask extends AsyncTask<String, Void, String>{
+    public class  TopicBackgroundTask extends AsyncTask<String, Void, String> {
 
         String title;
         String address = "";
-        ProgressDialog progress = new ProgressDialog(MainActivity.this);
-
+        ProgressDialog progress = new ProgressDialog(TopicActivity.this);
 
         @Override
         protected String doInBackground (String...urls){
@@ -181,8 +142,8 @@ public class MainActivity extends AppCompatActivity {
                                 Log.i("Broken_String", title);
                             }
 
-                            stories.add(title);
-                           links.add(address);
+                            titles.add(title);
+                            links.add(address);
 
                         }
                         adapter.notifyDataSetChanged();
@@ -282,6 +243,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
+            progress.dismiss();
         }
 
     }

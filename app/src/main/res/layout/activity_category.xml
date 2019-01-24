@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".CategoryActivity">
+
+    <GridLayout
+        android:id="@+id/gridLayout"
+        android:layout_width="415dp"
+        android:layout_height="419dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginLeft="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginRight="24dp"
+        android:layout_marginBottom="56dp"
+        android:columnCount="3"
+        android:rowCount="3"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.733"
+        app:layout_constraintStart_toStartOf="parent">
+
+
+        <Button
+            android:id="@+id/Technology"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_margin="5dp"
+            android:layout_marginLeft="17dp"
+            android:onClick="topicResult"
+            android:tag="Technology" />
+
+        <Button
+            android:id="@+id/Buisness"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_margin="5dp"
+            android:layout_marginLeft="17dp"
+            android:onClick="topicResult"
+            android:tag="Buisness" />
+
+        <Button
+            android:id="@+id/Health"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_margin="5dp"
+            android:layout_marginLeft="17dp"
+            android:onClick="topicResult"
+            android:tag="Health" />
+
+        <Button
+            android:id="@+id/Science"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_margin="5dp"
+            android:layout_marginLeft="17dp"
+            android:onClick="topicResult"
+            android:tag="Science" />
+
+        <Button
+            android:id="@+id/Sports"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_margin="5dp"
+            android:layout_marginLeft="17dp"
+            android:onClick="topicResult"
+            android:tag="Sports" />
+
+        <Button
+            android:id="@+id/Entertainment"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_margin="5dp"
+            android:layout_marginLeft="17dp"
+            android:onClick="topicResult"
+            android:tag="Entertainment" />
+
+    </GridLayout>
+
+
+    <EditText
+        android:id="@+id/searchEditText"
+        android:layout_width="395dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="45dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="37dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:onClick="editClick"
+        android:text="Name"
+        app:layout_constraintBottom_toTopOf="@+id/gridLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/button5"
+        android:layout_width="128dp"
+        android:layout_height="53dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginEnd="307dp"
+        android:layout_marginRight="307dp"
+        android:layout_marginBottom="9dp"
+        android:onClick="Home"
+        android:text="Button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.177"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/gridLayout"
+        app:layout_constraintVertical_bias="0.0" />
+
+</android.support.constraint.ConstraintLayout>

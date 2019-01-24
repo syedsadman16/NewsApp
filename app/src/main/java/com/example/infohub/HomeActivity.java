@@ -1,6 +1,9 @@
 package com.example.infohub;
 
+import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -46,10 +49,12 @@ import java.util.concurrent.ExecutionException;
 * Crashes when opening app with emulator - Hit RUN button
 * MainActivity is broken, Only HomeActivity works
 *
+* IDEA: Save position and sumary, retireve summary
  */
 
-public class HomeActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+    ProgressDialog progressDialog;
+    Context ctx = this;
 
     SQLiteDatabase database;
     ListView trendingList;
@@ -60,13 +65,14 @@ public class HomeActivity extends AppCompatActivity
     BackgroundTask task;
     String result = "";
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        database = this.openOrCreateDatabase("NewsDB", MODE_PRIVATE, null);
-        database.execSQL("CREATE TABLE IF NOT EXISTS trending (name VARCHAR, address VARCHAR, id INTEGER PRIMARY KEY)");
+       // database = this.openOrCreateDatabase("NewsDB", MODE_PRIVATE, null);
+       // database.execSQL("CREATE TABLE IF NOT EXISTS trending (name VARCHAR, address VARCHAR, id INTEGER PRIMARY KEY)");
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -96,7 +102,6 @@ public class HomeActivity extends AppCompatActivity
         }
 
         adapter.notifyDataSetChanged();
-        // updateContent();
 
         trendingList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -113,23 +118,25 @@ public class HomeActivity extends AppCompatActivity
 
                 try {
 
-
                     homeSummaries.get(position);
 
-                    //
                     new AlertDialog.Builder(HomeActivity.this)
                             .setTitle("Summary")
                             .setMessage(homeSummaries.get(position))
                             .setPositiveButton("Close", null).show();
+
                 } catch (Exception e) {
 
-                    ProgressDialog progress = new ProgressDialog(HomeActivity.this);
-                    progress.setMessage("Downloaded summary " + "'" + homeStories.get(position) + "'." +  " Click anywhere to exit");
-                    progress.show();
+                   // ProgressDialog progress = new ProgressDialog(HomeActivity.this);
+                 //   progress.setMessage("Downloaded summary " + "'" + homeStories.get(position) + "'." +  " Click anywhere to exit");
+                 //   progress.show();
+
+                    // database.execSQL("INSERT INTO trending (name, address) VALUES ('" + title + "','" + address + "')");
 
                     String link = homeLinks.get(position);
 
                     task.downloadSummary(link);
+
                     adapter.notifyDataSetChanged();
 
                 }
@@ -139,8 +146,6 @@ public class HomeActivity extends AppCompatActivity
 
 
     }
-
-
 
 
 
@@ -188,7 +193,9 @@ public class HomeActivity extends AppCompatActivity
             task.cancel(true);
             startActivity(i);
         } else if (id == R.id.Buisness) {
-
+            Intent cat = new Intent(getApplicationContext(), CategoryActivity.class);
+            task.cancel(true);
+            startActivity(cat);
         } else if (id == R.id.Technology) {
 
         } else if (id == R.id.Health) {
@@ -199,6 +206,7 @@ public class HomeActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
 /*
     public void updateContent(){
         Cursor cursor = database.rawQuery("SELECT * FROM trending", null);
@@ -229,9 +237,15 @@ public class HomeActivity extends AppCompatActivity
 
 public class  BackgroundTask extends AsyncTask<String, Void, String> {
 
-
     String title;
-        String address = "";
+    String address = "";
+   // ProgressDialog progress = new ProgressDialog(HomeActivity.this);
+
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+    }
+
 
     @Override
     protected String doInBackground (String...urls){
@@ -243,6 +257,7 @@ public class  BackgroundTask extends AsyncTask<String, Void, String> {
 
             url = new URL(urls[0]);
             connection = (HttpURLConnection) url.openConnection();
+           // connection.setRequestMethod("GET");
             InputStream in = connection.getInputStream();
             InputStreamReader reader = new InputStreamReader(in);
             int data = reader.read();
@@ -253,21 +268,16 @@ public class  BackgroundTask extends AsyncTask<String, Void, String> {
                 data = reader.read();
             }
 
-            Log.i("Result", result);
-
-
-
             try {
 
                 JSONObject jsonObject = new JSONObject(result);
                 JSONArray jsonArray = jsonObject.getJSONArray("articles");
 
-                //  database.execSQL("DELETE FROM trending");
-
-                //inside this array articles we have many objects containing string author
                 for (int i = 0; i < jsonArray.length() / 2; i++) {
+
                     JSONObject content = jsonArray.getJSONObject(i);
                     if (!content.isNull("url")) {
+
                         title = content.getString("title");
                         address = content.getString("url");
                         Log.i("Title", title);
@@ -276,58 +286,11 @@ public class  BackgroundTask extends AsyncTask<String, Void, String> {
                             title = title.replace(title, "Article name unavailable. Click for a suprise");
                             Log.i("Broken_String", title);
                         }
+
                         homeStories.add(title);
                         homeLinks.add(address);
 
-                        // database.execSQL("INSERT INTO trending (name, address) VALUES ('" + title + "','" + address + "')");
-/*
-                        //GET THE SUMMARY OF EACH ARTICLE
-                        String summ = "";
-
-                        if (exists("https://www.summarizebot.com/api/summarize?apiKey=31241703bbcd4c8999e1a588f4c67931&size=30&keywords=10&fragments=15&url=" + address)) {
-                            url = new URL("https://www.summarizebot.com/api/summarize?apiKey=31241703bbcd4c8999e1a588f4c67931&size=30&keywords=10&fragments=15&url=" + address);
-                            try {
-
-                                connection = (HttpURLConnection) url.openConnection();
-                                 in = connection.getInputStream();
-                                 reader = new InputStreamReader(in);
-                                data = reader.read();
-
-                                while (data != -1) {
-                                    char c = (char) data;
-                                    summ += c;
-                                    data = reader.read();
-                                }
-
-                            } catch (Exception e){
-                                e.printStackTrace();
-                            }
-
-
-                            JSONArray jArray = new JSONArray(summ);
-                            JSONObject jObject = null;
-
-                            String s1 = "";
-                            String s2 = "";
-
-                            jObject = jArray.getJSONObject(0);
-                            s1 = jObject.getString("summary");
-                            //  Log.i("Sum", s1);
-
-                            JSONArray j2Array = new JSONArray(s1);
-                            for (int j = 0; j < j2Array.length(); j++) {
-                                JSONObject object2 = j2Array.getJSONObject(j);
-                                s2 += object2.getString("sentence");
-                            }
-                            homeSummaries.add(s2);
-
-                            Log.i("Sum", s2);
-
-
-                        }
-*/
                     }
-
                     adapter.notifyDataSetChanged();
                 }
 
@@ -335,76 +298,6 @@ public class  BackgroundTask extends AsyncTask<String, Void, String> {
                 e.printStackTrace();
             }
 
-     /*
-            JSONObject jsonObject = new JSONObject(result);
-            JSONArray jsonArray = jsonObject.getJSONArray("articles");
-
-          //  database.execSQL("DELETE FROM trending");
-
-            //inside this array articles we have many objects containing string author
-            for (int i = 0; i < jsonArray.length() / 2; i++) {
-                JSONObject content = jsonArray.getJSONObject(i);
-                if (!content.isNull("url")) {
-                     title = content.getString("title");
-                    address = content.getString("url");
-                    Log.i("Title", title);
-
-                    if (title.contains("'")) {
-                        title = title.replace(title, "Article name unavailable. Click for a suprise");
-                        Log.i("Broken_String", title);
-                    }
-
-                   // database.execSQL("INSERT INTO trending (name, address) VALUES ('" + title + "','" + address + "')");
-                }
-
-                //GET THE SUMMARY OF EACH ARTICLE
-                String summ = "";
-
-                if (exists("https://www.summarizebot.com/api/summarize?apiKey=31241703bbcd4c8999e1a588f4c67931&size=30&keywords=10&fragments=15&url=" + address)) {
-                    url = new URL("https://www.summarizebot.com/api/summarize?apiKey=31241703bbcd4c8999e1a588f4c67931&size=30&keywords=10&fragments=15&url=" + address);
-                    try {
-                        connection = (HttpURLConnection) url.openConnection();
-                        in = connection.getInputStream();
-                        reader = new InputStreamReader(in);
-                        data = reader.read();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        return null;
-                    }
-
-
-                    while (data != -1) {
-                        char c = (char) data;
-                        summ += c;
-                        data = reader.read();
-                    }
-
-                    if (summ != null) {
-                        JSONArray jArray = new JSONArray(summ);
-                        JSONObject jObject = null;
-
-                        String s1 = "";
-                        String s2 = "";
-
-                        jObject = jArray.getJSONObject(0);
-                        s1 = jObject.getString("summary");
-                        Log.i("Sum", s1);
-
-                        JSONArray j2Array = new JSONArray(s1);
-                        for (int j = 0; j < j2Array.length(); j++) {
-                            JSONObject object2 = j2Array.getJSONObject(j);
-                            s2 += object2.getString("sentence");
-                        }
-                        homeSummaries.add(s2);
-                        Log.i("Sum", s2);
-
-
-                    }
-
-                }
-
-            }
-*/
             return result;
 
         } catch (Exception e) {
@@ -415,13 +308,11 @@ public class  BackgroundTask extends AsyncTask<String, Void, String> {
 
     }
 
+
     public boolean exists(String URLName){
         try {
             HttpURLConnection.setFollowRedirects(false);
-            // note : you may also need
-            //        HttpURLConnection.setInstanceFollowRedirects(false)
-            HttpURLConnection con =
-                    (HttpURLConnection) new URL(URLName).openConnection();
+            HttpURLConnection con = (HttpURLConnection) new URL(URLName).openConnection();
             con.setRequestMethod("HEAD");
             return (con.getResponseCode() == HttpURLConnection.HTTP_OK);
         }
@@ -432,10 +323,8 @@ public class  BackgroundTask extends AsyncTask<String, Void, String> {
     }
 
 
+
     public void downloadSummary(String address){
-
-
-
 
 
         URL url;
@@ -443,16 +332,24 @@ public class  BackgroundTask extends AsyncTask<String, Void, String> {
         int data = 0;
         String summ = "";
 
+        progressDialog = new ProgressDialog(ctx);
+        progressDialog.setMessage("Aguarde...");
+        progressDialog.setIndeterminate(true);
+        progressDialog.setCancelable(true);
+
+
         try {
+
             if (exists("https://www.summarizebot.com/api/summarize?apiKey=31241703bbcd4c8999e1a588f4c67931&size=30&keywords=10&fragments=15&url=" + address)) {
+
+                progressDialog.show();
+
                 url = new URL("https://www.summarizebot.com/api/summarize?apiKey=31241703bbcd4c8999e1a588f4c67931&size=30&keywords=10&fragments=15&url=" + address);
                 try {
                     connection = (HttpURLConnection) url.openConnection();
                     InputStream in = connection.getInputStream();
                     InputStreamReader reader = new InputStreamReader(in);
                     data = reader.read();
-
-
 
                     while (data != -1) {
                         char c = (char) data;
@@ -474,34 +371,33 @@ public class  BackgroundTask extends AsyncTask<String, Void, String> {
 
                     jObject = jArray.getJSONObject(0);
                     s1 = jObject.getString("summary");
-                    Log.i("Sum", s1);
 
                     JSONArray j2Array = new JSONArray(s1);
+
                     for (int j = 0; j < j2Array.length(); j++) {
                         JSONObject object2 = j2Array.getJSONObject(j);
                         s2 += object2.getString("sentence");
                     }
-                    homeSummaries.add(s2);
-                    Log.i("Sum", s2);
-                    adapter.notifyDataSetChanged();
 
+                    homeSummaries.add(s2);
+                    adapter.notifyDataSetChanged();
                 }
 
             }
 
-
+            progressDialog.dismiss();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
+
+
     @Override
     protected void onPostExecute(String result) {
         super.onPostExecute(result);
 
-
     }
-
 }
 
 }
