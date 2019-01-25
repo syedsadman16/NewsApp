@@ -31,18 +31,14 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-
-import com.example.infohub.MainActivity.ContentBackgroundTask;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
+
 
 /* BUGS:
 *
@@ -188,11 +184,11 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.Home) {
-            Intent i = new Intent(getApplicationContext(), MainActivity.class);
+        if (id == R.id.Buisness) {
+            Intent source = new Intent(getApplicationContext(), NewsSources.class);
             task.cancel(true);
-            startActivity(i);
-        } else if (id == R.id.Buisness) {
+            startActivity(source);
+        } else if (id == R.id.Home) {
             Intent cat = new Intent(getApplicationContext(), CategoryActivity.class);
             task.cancel(true);
             startActivity(cat);
@@ -281,11 +277,6 @@ public class  BackgroundTask extends AsyncTask<String, Void, String> {
                         title = content.getString("title");
                         address = content.getString("url");
                         Log.i("Title", title);
-
-                        if (title.contains("'")) {
-                            title = title.replace(title, "Article name unavailable. Click for a suprise");
-                            Log.i("Broken_String", title);
-                        }
 
                         homeStories.add(title);
                         homeLinks.add(address);

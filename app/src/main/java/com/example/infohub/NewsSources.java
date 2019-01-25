@@ -7,13 +7,14 @@ import android.os.AsyncTask;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -24,84 +25,67 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
-public class TopicActivity extends AppCompatActivity {
+public class NewsSources extends AppCompatActivity {
 
-    TopicBackgroundTask task;
     SQLiteDatabase database;
     ListView listView;
-    ArrayList<String> titles = new ArrayList<>();
-    ArrayList<String> links = new ArrayList<>();
-    ArrayList<String> summaries = new ArrayList<>();
+    EditText filterList;
+    ArrayList<String> articleNames = new ArrayList<>();
+    ArrayList<String> articleLinks = new ArrayList<>();
+    SourceBackgroundTask task;
     ArrayAdapter adapter;
     String result = "";
-    Intent intent;
-    TextView updatetopicName;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_topic);
+        setContentView(R.layout.activity_news_sources);
 
-        listView = findViewById(R.id.topicListView);
-        adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, titles);
+        filterList = (EditText) findViewById(R.id.filterText);
+
+        listView = findViewById(R.id.listView);
+        adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, articleNames);
         listView.setAdapter(adapter);
 
-        task = new TopicBackgroundTask();
-
-        intent = getIntent();
-        String topic = intent.getStringExtra("topic");
+        task = new SourceBackgroundTask();
         try {
-            task.execute("https://newsapi.org/v2/top-headlines?country=us&category="+ topic +"&apiKey=5040cea2678445de93e1a6862c5aeeb3").get();
-           // task.execute("https://newsapi.org/v2/everything?q="+ topic +"&apiKey=5040cea2678445de93e1a6862c5aeeb3");
-            updatetopicName = findViewById(R.id.updatetopicName);
-            updatetopicName.setText(topic);
-
+          task.execute("https://newsapi.org/v2/sources?language=en&country=us&apiKey=5040cea2678445de93e1a6862c5aeeb3").get();
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        listView.setTextFilterEnabled(true);
+        filterList.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                adapter.getFilter().filter(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(getApplicationContext(), WebActivity.class);
-                intent.putExtra("URL", links.get(position));
+                intent.putExtra("URL", articleLinks.get(position));
                 startActivity(intent);
-            }
-        });
-
-
-        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                try {
-                    summaries.get(position);
-                    new AlertDialog.Builder(TopicActivity.this)
-                            .setTitle("Summary")
-                            .setMessage(summaries.get(position))
-                            .setPositiveButton("Close", null).show();
-
-                } catch (Exception e) {
-
-                    String link = links.get(position);
-                    task.downloadSummary(link);
-                    adapter.notifyDataSetChanged();
-
-                }
-
-                return true;
             }
         });
 
     }
 
 
+    public class  SourceBackgroundTask extends AsyncTask<String, Void, String> {
 
-    public class  TopicBackgroundTask extends AsyncTask<String, Void, String> {
-
-        String title;
-        String address = "";
-        ProgressDialog progress = new ProgressDialog(TopicActivity.this);
+        String names;
+        String links = "";
 
         @Override
         protected String doInBackground (String...urls){
@@ -122,37 +106,30 @@ public class TopicActivity extends AppCompatActivity {
                     result += c;
                     data = reader.read();
                 }
-                Log.i("RESULT", result);
-                try {
 
+                //IN OBJECT -> SOURCES ARRAY -> OBJECT -> GET NAME AND URL
                     JSONObject jsonObject = new JSONObject(result);
-                    JSONArray jsonArray = jsonObject.getJSONArray("articles");
+                    JSONArray jsonArray = jsonObject.getJSONArray("sources");
 
                     for (int i = 0; i < jsonArray.length() / 2; i++) {
 
                         JSONObject content = jsonArray.getJSONObject(i);
-                        if (!content.isNull("url")) {
 
-                            title = content.getString("title");
-                            address = content.getString("url");
-                            Log.i("Title", title);
+                            names = content.getString("name");
+                            links = content.getString("url");
+                            Log.i("Title", names);
 
-                            titles.add(title);
-                            links.add(address);
+                            articleNames.add(names);
+                            articleLinks.add(links);
 
                         }
                         adapter.notifyDataSetChanged();
-                    }
 
-                } catch (Exception e){
-                    e.printStackTrace();
-                }
 
                 return result;
 
             } catch (Exception e) {
                 e.printStackTrace();
-                Log.e("Error", "ARTICLE NOT FOUND");
                 return null;
             }
 
@@ -179,9 +156,6 @@ public class TopicActivity extends AppCompatActivity {
             HttpURLConnection connection;
             int data = 0;
             String summ = "";
-
-            progress.setMessage("Downloaded summary ");
-            progress.show();
 
             try {
 
@@ -222,7 +196,6 @@ public class TopicActivity extends AppCompatActivity {
                             s2 += object2.getString("sentence");
                         }
 
-                        summaries.add(s2);
                         adapter.notifyDataSetChanged();
                     }
 
@@ -238,10 +211,9 @@ public class TopicActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            progress.dismiss();
         }
 
     }
 
-}
 
+}

@@ -33,15 +33,6 @@
             android:tag="Technology" />
 
         <Button
-            android:id="@+id/Buisness"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_margin="5dp"
-            android:layout_marginLeft="17dp"
-            android:onClick="topicResult"
-            android:tag="Buisness" />
-
-        <Button
             android:id="@+id/Health"
             android:layout_width="120dp"
             android:layout_height="120dp"
@@ -77,6 +68,15 @@
             android:onClick="topicResult"
             android:tag="Entertainment" />
 
+        <Button
+            android:id="@+id/General"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_margin="5dp"
+            android:layout_marginLeft="17dp"
+            android:onClick="topicResult"
+            android:tag="General"  />
+
     </GridLayout>
 
 
@@ -91,9 +91,9 @@
         android:layout_marginRight="8dp"
         android:layout_marginBottom="37dp"
         android:ems="10"
+        android:hint="Custom Search"
         android:inputType="textPersonName"
         android:onClick="editClick"
-        android:text="Name"
         app:layout_constraintBottom_toTopOf="@+id/gridLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
