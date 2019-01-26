@@ -30,8 +30,10 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -40,12 +42,13 @@ import java.net.URL;
 import java.util.ArrayList;
 
 
-/* BUGS:
-*
-* Crashes when opening app with emulator - Hit RUN button
-* MainActivity is broken, Only HomeActivity works
-*
-* IDEA: Save position and sumary, retireve summary
+/* TODO
+* Find a way to show dialog
+* Optimize performance
+* Edit weathermap code
+* Databases
+* Add stock otpions
+* Listview custom row
  */
 
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -184,18 +187,23 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.Buisness) {
+        if (id == R.id.sources) {
             Intent source = new Intent(getApplicationContext(), NewsSources.class);
             task.cancel(true);
             startActivity(source);
-        } else if (id == R.id.Home) {
+        } else if (id == R.id.categories) {
             Intent cat = new Intent(getApplicationContext(), CategoryActivity.class);
             task.cancel(true);
             startActivity(cat);
-        } else if (id == R.id.Technology) {
-
-        } else if (id == R.id.Health) {
-
+        } else if (id == R.id.home) {
+            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+            if (drawer.isDrawerOpen(GravityCompat.START)) {
+                drawer.closeDrawer(GravityCompat.START);
+            } else {
+                super.onBackPressed();
+            }
+        } else if (id == R.id.favorites) {
+            Toast.makeText(getApplicationContext(), "Coming Soon", Toast.LENGTH_LONG).show();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -390,6 +398,70 @@ public class  BackgroundTask extends AsyncTask<String, Void, String> {
 
     }
 }
+
+
+/*
+ // BACKGROUND TASK FOR WEATHER
+
+    public class BackgroundData extends AsyncTask<String, Void, String>{
+
+        @Override
+        protected String doInBackground(String... urls) {
+
+            URL url;
+            HttpURLConnection connection;
+            String weatherData = "";
+            try {
+                //add url
+                url = new URL(urls[0]);
+                //open connection
+                connection = (HttpURLConnection) url.openConnection();
+                //get input stream and reader
+                InputStream in = connection.getInputStream();
+                InputStreamReader reader = new InputStreamReader(in);
+                //set up read data
+                int data = reader.read();
+                //get all characters
+                while(data != -1){
+                    char convert = (char) data;
+                    weatherData += convert;
+                    data = reader.read();
+                }
+                return weatherData;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String weatherData) {
+            super.onPostExecute(weatherData);
+
+            TextView text = findViewById(R.id.weatherText);
+            try {
+                //convert weatherData contents to json
+                JSONObject data = new JSONObject(weatherData);
+                //locate "weather" object identify it as array from json
+                JSONArray dataArray = data.getJSONArray("weather");
+                //Go into array and pull data
+                for(int i = 0; i < dataArray.length(); i++) {
+                    //turn incoming data into json
+                    JSONObject incoming = dataArray.getJSONObject(i);
+                    //put values into variables
+                    String main = incoming.getString("main");
+                    text.setText(main);
+                    Log.i("Main:", main);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+                //Unknown city handler
+                Toast.makeText(getApplicationContext(), "Undefined location. Try again", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+*/
+
 
 }
 

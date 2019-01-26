@@ -57,7 +57,7 @@ public class CategoryActivity extends AppCompatActivity {
                 //break;
             case "General":
                 intent = new Intent(getApplicationContext(), TopicActivity.class);
-                intent.putExtra("topic", "general");
+                intent.putExtra("topic", "business");
                 startActivity(intent);
                 finish();
                 return;
