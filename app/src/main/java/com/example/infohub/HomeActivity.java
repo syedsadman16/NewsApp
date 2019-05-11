@@ -35,20 +35,22 @@ import android.widget.Toast;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 
 
 /* TODO
 * Find a way to show dialog
-* Optimize performance
-* Edit weathermap code
-* Databases
-* Add stock otpions
-* Listview custom row
+* Fix lag
+* Weather, stocks
+* Allow users to save articles
+* Fix image render on CategoryActivity
  */
 
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -70,6 +72,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+       //When setting up databases
        // database = this.openOrCreateDatabase("NewsDB", MODE_PRIVATE, null);
        // database.execSQL("CREATE TABLE IF NOT EXISTS trending (name VARCHAR, address VARCHAR, id INTEGER PRIMARY KEY)");
 
@@ -82,24 +85,20 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-
         trendingList = findViewById(R.id.trendingList);
         adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, homeStories);
         trendingList.setAdapter(adapter);
 
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
 
         task = new BackgroundTask();
         try {
-            String s = task.execute("https://newsapi.org/v2/top-headlines?country=us&apiKey=5040cea2678445de93e1a6862c5aeeb3").get();
-
+            task.execute("https://newsapi.org/v2/top-headlines?country=us&apiKey=5040cea2678445de93e1a6862c5aeeb3").get();
+            //updateWeather();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
+        //Update listView
         adapter.notifyDataSetChanged();
 
         trendingList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -126,16 +125,10 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
                 } catch (Exception e) {
 
-                   // ProgressDialog progress = new ProgressDialog(HomeActivity.this);
-                 //   progress.setMessage("Downloaded summary " + "'" + homeStories.get(position) + "'." +  " Click anywhere to exit");
-                 //   progress.show();
-
                     // database.execSQL("INSERT INTO trending (name, address) VALUES ('" + title + "','" + address + "')");
 
                     String link = homeLinks.get(position);
-
                     task.downloadSummary(link);
-
                     adapter.notifyDataSetChanged();
 
                 }
@@ -187,22 +180,25 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.sources) {
-            Intent source = new Intent(getApplicationContext(), NewsSources.class);
-            task.cancel(true);
-            startActivity(source);
-        } else if (id == R.id.categories) {
+        if (id == R.id.categories) {
             Intent cat = new Intent(getApplicationContext(), CategoryActivity.class);
             task.cancel(true);
             startActivity(cat);
-        } else if (id == R.id.home) {
+        }
+        else if (id == R.id.sources) {
+            Intent source = new Intent(getApplicationContext(), NewsSources.class);
+            task.cancel(true);
+            startActivity(source);
+        }
+        else if (id == R.id.home) {
             DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
             if (drawer.isDrawerOpen(GravityCompat.START)) {
                 drawer.closeDrawer(GravityCompat.START);
             } else {
                 super.onBackPressed();
             }
-        } else if (id == R.id.favorites) {
+        }
+        else if (id == R.id.favorites) {
             Toast.makeText(getApplicationContext(), "Coming Soon", Toast.LENGTH_LONG).show();
         }
 
@@ -399,67 +395,57 @@ public class  BackgroundTask extends AsyncTask<String, Void, String> {
     }
 }
 
-
 /*
- // BACKGROUND TASK FOR WEATHER
+**When enabling weather options into app
+*
+    public void updateWeather(){
 
-    public class BackgroundData extends AsyncTask<String, Void, String>{
-
-        @Override
-        protected String doInBackground(String... urls) {
-
-            URL url;
-            HttpURLConnection connection;
-            String weatherData = "";
-            try {
-                //add url
-                url = new URL(urls[0]);
-                //open connection
-                connection = (HttpURLConnection) url.openConnection();
-                //get input stream and reader
-                InputStream in = connection.getInputStream();
-                InputStreamReader reader = new InputStreamReader(in);
-                //set up read data
-                int data = reader.read();
-                //get all characters
-                while(data != -1){
-                    char convert = (char) data;
-                    weatherData += convert;
-                    data = reader.read();
-                }
-                return weatherData;
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
-            }
+    URL url;
+    HttpURLConnection connection;
+    String weatherData = "";
+    try {
+        //add url
+        url = new URL("https://samples.openweathermap.org/data/2.5/weather?q=London,uk&appid=b6907d289e10d714a6e88b30761fae22");
+       // url = new URL("https://api.openweathermap.org/data/2.5/forecast?q=detroit&appid=1f02d456968e25491936d3c826d78b88");
+        //open connection
+        connection = (HttpURLConnection) url.openConnection();
+        //get input stream and reader
+        InputStream in = connection.getInputStream();
+        InputStreamReader reader = new InputStreamReader(in);
+        //set up read data
+        int data = reader.read();
+        //get all characters
+        while(data != -1){
+            char convert = (char) data;
+            weatherData += convert;
+            data = reader.read();
         }
 
-        @Override
-        protected void onPostExecute(String weatherData) {
-            super.onPostExecute(weatherData);
-
-            TextView text = findViewById(R.id.weatherText);
-            try {
-                //convert weatherData contents to json
-                JSONObject data = new JSONObject(weatherData);
-                //locate "weather" object identify it as array from json
-                JSONArray dataArray = data.getJSONArray("weather");
-                //Go into array and pull data
-                for(int i = 0; i < dataArray.length(); i++) {
-                    //turn incoming data into json
-                    JSONObject incoming = dataArray.getJSONObject(i);
-                    //put values into variables
-                    String main = incoming.getString("main");
-                    text.setText(main);
-                    Log.i("Main:", main);
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-                //Unknown city handler
-                Toast.makeText(getApplicationContext(), "Undefined location. Try again", Toast.LENGTH_LONG).show();
+            TextView text = findViewById(R.id.weathertest);
+            //convert weatherData contents to json
+            JSONObject weatherJSON = new JSONObject(weatherData);
+            //locate "weather" object identify it as array from json
+            JSONArray dataArray = weatherJSON.getJSONArray("weather");
+            //Go into array and pull data
+            for(int i = 0; i < dataArray.length(); i++) {
+                //turn incoming data into json
+                JSONObject incoming = dataArray.getJSONObject(i);
+                //put values into variables
+                String main = incoming.getString("main");
+                text.setText(main);
+                Log.i("Main:", main);
             }
-        }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            //Unknown city handler
+            Toast.makeText(getApplicationContext(), "Undefined location. Try again", Toast.LENGTH_LONG).show();
+        } catch (MalformedURLException e) {
+        e.printStackTrace();
+    } catch (IOException e) {
+        e.printStackTrace();
     }
+
+}
 */
 
 
