@@ -32,7 +32,7 @@ public class NewsSources extends AppCompatActivity {
     EditText filterList;
     ArrayList<String> articleNames = new ArrayList<>();
     ArrayList<String> articleLinks = new ArrayList<>();
-    SourceBackgroundTask task;
+    BackgroundTask task;
     ArrayAdapter adapter;
     String result = "";
 
@@ -43,13 +43,17 @@ public class NewsSources extends AppCompatActivity {
 
         filterList = (EditText) findViewById(R.id.filterText);
 
-        listView = findViewById(R.id.listView);
-        adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, articleNames);
-        listView.setAdapter(adapter);
 
-        task = new SourceBackgroundTask();
+        task = new BackgroundTask();
         try {
+          task.jsonArrayName = "sources";
+          task.jsonArrayValue = "name";
           task.execute("https://newsapi.org/v2/sources?language=en&country=us&apiKey=5040cea2678445de93e1a6862c5aeeb3").get();
+          listView = findViewById(R.id.listView);
+          adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, task.Stories);
+          listView.setAdapter(adapter);
+          adapter.notifyDataSetChanged();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -74,144 +78,11 @@ public class NewsSources extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(getApplicationContext(), WebActivity.class);
-                intent.putExtra("URL", articleLinks.get(position));
+                //Get the links from BackgroundTask and open WebView
+                intent.putExtra("URL", task.Links.get(position));
                 startActivity(intent);
             }
         });
-
-    }
-
-
-    public class  SourceBackgroundTask extends AsyncTask<String, Void, String> {
-
-        String names;
-        String links = "";
-
-        @Override
-        protected String doInBackground (String...urls){
-            URL url;
-            HttpURLConnection connection;
-            String result = "";
-
-            try {
-
-                url = new URL(urls[0]);
-                connection = (HttpURLConnection) url.openConnection();
-                InputStream in = connection.getInputStream();
-                InputStreamReader reader = new InputStreamReader(in);
-                int data = reader.read();
-
-                while (data != -1) {
-                    char c = (char) data;
-                    result += c;
-                    data = reader.read();
-                }
-
-                //IN OBJECT -> SOURCES ARRAY -> OBJECT -> GET NAME AND URL
-                    JSONObject jsonObject = new JSONObject(result);
-                    JSONArray jsonArray = jsonObject.getJSONArray("sources");
-
-                    for (int i = 0; i < jsonArray.length() / 2; i++) {
-
-                        JSONObject content = jsonArray.getJSONObject(i);
-
-                            names = content.getString("name");
-                            links = content.getString("url");
-                            Log.i("Title", names);
-
-                            articleNames.add(names);
-                            articleLinks.add(links);
-
-                        }
-                        adapter.notifyDataSetChanged();
-
-
-                return result;
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
-            }
-
-        }
-
-
-        public boolean exists(String URLName){
-            try {
-                HttpURLConnection.setFollowRedirects(false);
-                HttpURLConnection con = (HttpURLConnection) new URL(URLName).openConnection();
-                con.setRequestMethod("HEAD");
-                return (con.getResponseCode() == HttpURLConnection.HTTP_OK);
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-                return false;
-            }
-        }
-
-
-
-        public void downloadSummary(String address){
-            URL url;
-            HttpURLConnection connection;
-            int data = 0;
-            String summ = "";
-
-            try {
-
-                if (exists("https://www.summarizebot.com/api/summarize?apiKey=31241703bbcd4c8999e1a588f4c67931&size=30&keywords=10&fragments=15&url=" + address)) {
-
-                    url = new URL("https://www.summarizebot.com/api/summarize?apiKey=31241703bbcd4c8999e1a588f4c67931&size=30&keywords=10&fragments=15&url=" + address);
-                    try {
-                        connection = (HttpURLConnection) url.openConnection();
-                        InputStream in = connection.getInputStream();
-                        InputStreamReader reader = new InputStreamReader(in);
-                        data = reader.read();
-
-                        while (data != -1) {
-                            char c = (char) data;
-                            summ += c;
-                            data = reader.read();
-                        }
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-
-                    }
-
-                    if (summ != null) {
-                        JSONArray jArray = new JSONArray(summ);
-                        JSONObject jObject = null;
-
-                        String s1 = "";
-                        String s2 = "";
-
-                        jObject = jArray.getJSONObject(0);
-                        s1 = jObject.getString("summary");
-
-                        JSONArray j2Array = new JSONArray(s1);
-
-                        for (int j = 0; j < j2Array.length(); j++) {
-                            JSONObject object2 = j2Array.getJSONObject(j);
-                            s2 += object2.getString("sentence");
-                        }
-
-                        adapter.notifyDataSetChanged();
-                    }
-
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-        }
-
-
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-        }
 
     }
 

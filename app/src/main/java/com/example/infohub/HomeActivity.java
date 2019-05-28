@@ -47,24 +47,19 @@ import java.util.ArrayList;
 
 /* TODO
 * Find a way to show dialog
-* Fix lag
+* Implement new summary API
 * Weather, stocks
 * Allow users to save articles
 * Fix image render on CategoryActivity
  */
 
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
-    ProgressDialog progressDialog;
-    Context ctx = this;
 
     SQLiteDatabase database;
     ListView trendingList;
-    ArrayList<String> homeStories = new ArrayList<>();
-    ArrayList<String> homeLinks = new ArrayList<>();
-    ArrayList<String> homeSummaries = new ArrayList<>();
     ArrayAdapter adapter;
     BackgroundTask task;
-    String result = "";
+
 
 
     @Override
@@ -79,55 +74,67 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        //Side panel
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        trendingList = findViewById(R.id.trendingList);
-        adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, homeStories);
-        trendingList.setAdapter(adapter);
 
-
+        //Declare new instance of background class
         task = new BackgroundTask();
+
         try {
+            //Json array name inside object
+            task.jsonArrayName = "articles";
+            //target array element
+            task.jsonArrayValue = "title";
+            //Do the background stuff
             task.execute("https://newsapi.org/v2/top-headlines?country=us&apiKey=5040cea2678445de93e1a6862c5aeeb3").get();
+            //Setup the listviews and adapter
+            trendingList = findViewById(R.id.trendingList);
+            //Set adapter to stories array in the background task
+            adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, task.Stories);
+            trendingList.setAdapter(adapter);
+            //Update listView
+            adapter.notifyDataSetChanged();
             //updateWeather();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        //Update listView
-        adapter.notifyDataSetChanged();
-
+        //handle list view clicks
         trendingList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(getApplicationContext(), WebActivity.class);
-                intent.putExtra("URL", homeLinks.get(position));
+                intent.putExtra("URL", task.Links.get(position));
                 startActivity(intent);
             }
         });
 
+        //Long clicks for summaries
         trendingList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 
                 try {
 
-                    homeSummaries.get(position);
+                    task.Summaries.get(position);
 
                     new AlertDialog.Builder(HomeActivity.this)
                             .setTitle("Summary")
-                            .setMessage(homeSummaries.get(position))
+                            .setMessage(task.Summaries.get(position))
                             .setPositiveButton("Close", null).show();
 
                 } catch (Exception e) {
 
                     // database.execSQL("INSERT INTO trending (name, address) VALUES ('" + title + "','" + address + "')");
-
-                    String link = homeLinks.get(position);
+                    String link = task.Links.get(position);
                     task.downloadSummary(link);
                     adapter.notifyDataSetChanged();
 
@@ -136,21 +143,10 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-
     }
 
 
-
-    @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
-    }
-
+    //For dropdown in title bar
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -160,9 +156,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+        // Handle action bar item clicks here.
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
@@ -174,14 +168,29 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         return super.onOptionsItemSelected(item);
     }
 
+
+    //Navigation side panel exit
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    //Side panel clicks
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
+        //id's are assigned in res/menu/activity_home_drawer.xml
         int id = item.getItemId();
 
         if (id == R.id.categories) {
             Intent cat = new Intent(getApplicationContext(), CategoryActivity.class);
+            Log.i("Cat", "Clicked");
             task.cancel(true);
             startActivity(cat);
         }
@@ -234,166 +243,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         adapter.notifyDataSetChanged();
     }
 */
-
-public class  BackgroundTask extends AsyncTask<String, Void, String> {
-
-    String title;
-    String address = "";
-   // ProgressDialog progress = new ProgressDialog(HomeActivity.this);
-
-    @Override
-    protected void onPreExecute() {
-        super.onPreExecute();
-    }
-
-
-    @Override
-    protected String doInBackground (String...urls){
-        URL url;
-        HttpURLConnection connection;
-        String result = "";
-
-        try {
-
-            url = new URL(urls[0]);
-            connection = (HttpURLConnection) url.openConnection();
-           // connection.setRequestMethod("GET");
-            InputStream in = connection.getInputStream();
-            InputStreamReader reader = new InputStreamReader(in);
-            int data = reader.read();
-
-            while (data != -1) {
-                char c = (char) data;
-                result += c;
-                data = reader.read();
-            }
-
-            try {
-
-                JSONObject jsonObject = new JSONObject(result);
-                JSONArray jsonArray = jsonObject.getJSONArray("articles");
-
-                for (int i = 0; i < jsonArray.length() / 2; i++) {
-
-                    JSONObject content = jsonArray.getJSONObject(i);
-                    if (!content.isNull("url")) {
-
-                        title = content.getString("title");
-                        address = content.getString("url");
-                        Log.i("Title", title);
-
-                        homeStories.add(title);
-                        homeLinks.add(address);
-
-                    }
-                    adapter.notifyDataSetChanged();
-                }
-
-            } catch (Exception e){
-                e.printStackTrace();
-            }
-
-            return result;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            Log.e("Error", "ARTICLE NOT FOUND");
-            return null;
-        }
-
-    }
-
-
-    public boolean exists(String URLName){
-        try {
-            HttpURLConnection.setFollowRedirects(false);
-            HttpURLConnection con = (HttpURLConnection) new URL(URLName).openConnection();
-            con.setRequestMethod("HEAD");
-            return (con.getResponseCode() == HttpURLConnection.HTTP_OK);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-
-
-    public void downloadSummary(String address){
-
-
-        URL url;
-        HttpURLConnection connection;
-        int data = 0;
-        String summ = "";
-
-        progressDialog = new ProgressDialog(ctx);
-        progressDialog.setMessage("Aguarde...");
-        progressDialog.setIndeterminate(true);
-        progressDialog.setCancelable(true);
-
-
-        try {
-
-            if (exists("https://www.summarizebot.com/api/summarize?apiKey=31241703bbcd4c8999e1a588f4c67931&size=30&keywords=10&fragments=15&url=" + address)) {
-
-                progressDialog.show();
-
-                url = new URL("https://www.summarizebot.com/api/summarize?apiKey=31241703bbcd4c8999e1a588f4c67931&size=30&keywords=10&fragments=15&url=" + address);
-                try {
-                    connection = (HttpURLConnection) url.openConnection();
-                    InputStream in = connection.getInputStream();
-                    InputStreamReader reader = new InputStreamReader(in);
-                    data = reader.read();
-
-                    while (data != -1) {
-                        char c = (char) data;
-                        summ += c;
-                        data = reader.read();
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-
-                }
-
-                if (summ != null) {
-                    JSONArray jArray = new JSONArray(summ);
-                    JSONObject jObject = null;
-
-                    String s1 = "";
-                    String s2 = "";
-
-                    jObject = jArray.getJSONObject(0);
-                    s1 = jObject.getString("summary");
-
-                    JSONArray j2Array = new JSONArray(s1);
-
-                    for (int j = 0; j < j2Array.length(); j++) {
-                        JSONObject object2 = j2Array.getJSONObject(j);
-                        s2 += object2.getString("sentence");
-                    }
-
-                    homeSummaries.add(s2);
-                    adapter.notifyDataSetChanged();
-                }
-
-            }
-
-            progressDialog.dismiss();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
-
-    @Override
-    protected void onPostExecute(String result) {
-        super.onPostExecute(result);
-
-    }
-}
 
 /*
 **When enabling weather options into app

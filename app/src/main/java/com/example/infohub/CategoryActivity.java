@@ -11,7 +11,7 @@ import android.widget.EditText;
 
 public class CategoryActivity extends AppCompatActivity {
 
-
+    //Class functionality in TopicActivity.java
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,7 +19,7 @@ public class CategoryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_category);
     }
 
-
+    //Custom search for a topic
     public void editClick(View v){
         final EditText seatch = (EditText) findViewById(R.id.searchEditText);
 
@@ -39,7 +39,7 @@ public class CategoryActivity extends AppCompatActivity {
         }
 
 
-
+    //Loaded in TopicActivity.java
     public void topicResult(View view){
 
         Button btn = (Button) view;

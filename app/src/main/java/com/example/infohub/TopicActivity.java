@@ -26,14 +26,12 @@ import java.util.ArrayList;
 
 public class TopicActivity extends AppCompatActivity {
 
-    TopicBackgroundTask task;
+    BackgroundTask task;
     SQLiteDatabase database;
     ListView listView;
-    ArrayList<String> titles = new ArrayList<>();
     ArrayList<String> links = new ArrayList<>();
     ArrayList<String> summaries = new ArrayList<>();
     ArrayAdapter adapter;
-    String result = "";
     Intent intent;
     TextView updatetopicName;
 
@@ -43,19 +41,23 @@ public class TopicActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_topic);
 
-        listView = findViewById(R.id.topicListView);
-        adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, titles);
-        listView.setAdapter(adapter);
+        task = new BackgroundTask();
+        task.jsonArrayName = "articles";
+        task.jsonArrayValue = "title";
 
-        task = new TopicBackgroundTask();
-
+        //Load topic from CategoryActivity
         intent = getIntent();
         String topic = intent.getStringExtra("topic");
         try {
             task.execute("https://newsapi.org/v2/top-headlines?country=us&category="+ topic +"&apiKey=5040cea2678445de93e1a6862c5aeeb3").get();
-           // task.execute("https://newsapi.org/v2/everything?q="+ topic +"&apiKey=5040cea2678445de93e1a6862c5aeeb3");
+            listView = findViewById(R.id.topicListView);
+            //Set listview with data from DownloadTask
+            adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, task.Stories);
+            listView.setAdapter(adapter);
             updatetopicName = findViewById(R.id.updatetopicName);
             updatetopicName.setText(topic);
+            //Update list
+            adapter.notifyDataSetChanged();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -65,7 +67,7 @@ public class TopicActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(getApplicationContext(), WebActivity.class);
-                intent.putExtra("URL", links.get(position));
+                intent.putExtra("URL", task.Links.get(position));
                 startActivity(intent);
             }
         });
@@ -95,152 +97,12 @@ public class TopicActivity extends AppCompatActivity {
 
     }
 
-
-
-    public class  TopicBackgroundTask extends AsyncTask<String, Void, String> {
-
-        String title;
-        String address = "";
-        ProgressDialog progress = new ProgressDialog(TopicActivity.this);
-
-        @Override
-        protected String doInBackground (String...urls){
-            URL url;
-            HttpURLConnection connection;
-            String result = "";
-
-            try {
-
-                url = new URL(urls[0]);
-                connection = (HttpURLConnection) url.openConnection();
-                InputStream in = connection.getInputStream();
-                InputStreamReader reader = new InputStreamReader(in);
-                int data = reader.read();
-
-                while (data != -1) {
-                    char c = (char) data;
-                    result += c;
-                    data = reader.read();
-                }
-                Log.i("RESULT", result);
-                try {
-
-                    JSONObject jsonObject = new JSONObject(result);
-                    JSONArray jsonArray = jsonObject.getJSONArray("articles");
-
-                    for (int i = 0; i < jsonArray.length() / 2; i++) {
-
-                        JSONObject content = jsonArray.getJSONObject(i);
-                        if (!content.isNull("url")) {
-
-                            title = content.getString("title");
-                            address = content.getString("url");
-                            Log.i("Title", title);
-
-                            titles.add(title);
-                            links.add(address);
-
-                        }
-                        adapter.notifyDataSetChanged();
-                    }
-
-                } catch (Exception e){
-                    e.printStackTrace();
-                }
-
-                return result;
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                Log.e("Error", "ARTICLE NOT FOUND");
-                return null;
-            }
-
-        }
-
-
-        public boolean exists(String URLName){
-            try {
-                HttpURLConnection.setFollowRedirects(false);
-                HttpURLConnection con = (HttpURLConnection) new URL(URLName).openConnection();
-                con.setRequestMethod("HEAD");
-                return (con.getResponseCode() == HttpURLConnection.HTTP_OK);
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-                return false;
-            }
-        }
-
-
-
-        public void downloadSummary(String address){
-            URL url;
-            HttpURLConnection connection;
-            int data = 0;
-            String summ = "";
-
-            progress.setMessage("Downloaded summary ");
-            progress.show();
-
-            try {
-
-                if (exists("https://www.summarizebot.com/api/summarize?apiKey=31241703bbcd4c8999e1a588f4c67931&size=30&keywords=10&fragments=15&url=" + address)) {
-
-                    url = new URL("https://www.summarizebot.com/api/summarize?apiKey=31241703bbcd4c8999e1a588f4c67931&size=30&keywords=10&fragments=15&url=" + address);
-                    try {
-                        connection = (HttpURLConnection) url.openConnection();
-                        InputStream in = connection.getInputStream();
-                        InputStreamReader reader = new InputStreamReader(in);
-                        data = reader.read();
-
-                        while (data != -1) {
-                            char c = (char) data;
-                            summ += c;
-                            data = reader.read();
-                        }
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-
-                    }
-
-                    if (summ != null) {
-                        JSONArray jArray = new JSONArray(summ);
-                        JSONObject jObject = null;
-
-                        String s1 = "";
-                        String s2 = "";
-
-                        jObject = jArray.getJSONObject(0);
-                        s1 = jObject.getString("summary");
-
-                        JSONArray j2Array = new JSONArray(s1);
-
-                        for (int j = 0; j < j2Array.length(); j++) {
-                            JSONObject object2 = j2Array.getJSONObject(j);
-                            s2 += object2.getString("sentence");
-                        }
-
-                        summaries.add(s2);
-                        adapter.notifyDataSetChanged();
-                    }
-
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-        }
-
-
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-            progress.dismiss();
-        }
-
+    @Override
+    public void onBackPressed() {
+        task.cancel(true);
+        intent = new Intent(getApplicationContext(), CategoryActivity.class);
+        startActivity(intent);
+        super.onBackPressed();
     }
 
 }
