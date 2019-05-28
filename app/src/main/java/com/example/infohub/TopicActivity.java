@@ -86,7 +86,7 @@ public class TopicActivity extends AppCompatActivity {
                 } catch (Exception e) {
 
                     String link = links.get(position);
-                    task.downloadSummary(link);
+                    //task.downloadSummary(link);
                     adapter.notifyDataSetChanged();
 
                 }

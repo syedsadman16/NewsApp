@@ -6,173 +6,110 @@
     android:layout_height="match_parent"
     tools:context=".CategoryActivity">
 
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="83dp"
-        android:layout_height="21dp"
-        android:layout_marginStart="77dp"
-        android:layout_marginLeft="77dp"
-        android:layout_marginTop="45dp"
-        android:layout_marginEnd="60dp"
-        android:layout_marginRight="60dp"
-        android:text="Health"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        app:layout_constraintEnd_toStartOf="@+id/textView4"
-        app:layout_constraintStart_toEndOf="@+id/textView8"
-        app:layout_constraintTop_toBottomOf="@+id/searchEditText" />
 
-    <TextView
-        android:id="@+id/textView4"
-        android:layout_width="83dp"
-        android:layout_height="27dp"
-        android:layout_marginTop="45dp"
-        android:layout_marginEnd="9dp"
-        android:layout_marginRight="9dp"
-        android:text="Science"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/searchEditText" />
-
-    <TextView
-        android:id="@+id/textView5"
-        android:layout_width="83dp"
-        android:layout_height="27dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginEnd="65dp"
-        android:layout_marginRight="65dp"
-        android:layout_marginBottom="9dp"
-        android:text="Sports"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        app:layout_constraintBottom_toTopOf="@+id/gridLayout2"
-        app:layout_constraintEnd_toStartOf="@+id/textView6"
-        app:layout_constraintHorizontal_bias="1.0"
+    <Button
+        android:id="@+id/Technology"
+        android:layout_width="192dp"
+        android:layout_height="167dp"
+        android:layout_margin="5dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginEnd="17dp"
+        android:layout_marginRight="17dp"
+        android:layout_marginBottom="61dp"
+        android:background="@drawable/technology"
+        android:onClick="topicResult"
+        android:tag="Technology"
+        app:layout_constraintBottom_toTopOf="@+id/Health"
+        app:layout_constraintEnd_toStartOf="@+id/Science"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <TextView
-        android:id="@+id/textView6"
-        android:layout_width="95dp"
-        android:layout_height="27dp"
-        android:layout_marginTop="28dp"
-        android:text="Entertainment"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        app:layout_constraintBottom_toTopOf="@+id/gridLayout2"
-        app:layout_constraintTop_toBottomOf="@+id/gridLayout"
-        tools:layout_editor_absoluteX="164dp" />
+    <Button
+        android:id="@+id/Health"
+        android:layout_width="192dp"
+        android:layout_height="167dp"
+        android:layout_margin="5dp"
 
-    <TextView
-        android:id="@+id/textView7"
-        android:layout_width="83dp"
-        android:layout_height="27dp"
-        android:layout_marginStart="54dp"
-        android:layout_marginLeft="54dp"
-        android:layout_marginTop="28dp"
-        android:layout_marginEnd="27dp"
-        android:layout_marginRight="27dp"
-        android:text="Business"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        app:layout_constraintBottom_toTopOf="@+id/gridLayout2"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginEnd="17dp"
+        android:layout_marginRight="17dp"
+        android:layout_marginBottom="64dp"
+        android:background="@drawable/health"
+        android:onClick="topicResult"
+        android:tag="Health"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/Business"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/Science"
+        android:layout_width="192dp"
+        android:layout_height="167dp"
+        android:layout_margin="5dp"
+        android:layout_marginStart="11dp"
+        android:layout_marginLeft="11dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="61dp"
+        android:background="@drawable/science"
+        android:onClick="topicResult"
+        android:tag="Science"
+        app:layout_constraintBottom_toTopOf="@+id/Business"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textView6"
-        app:layout_constraintTop_toBottomOf="@+id/gridLayout" />
+        app:layout_constraintStart_toEndOf="@+id/Technology" />
 
-    <GridLayout
-        android:id="@+id/gridLayout"
-        android:layout_width="415dp"
-        android:layout_height="127dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginLeft="24dp"
-        android:layout_marginTop="7dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginRight="24dp"
-        android:layout_marginBottom="35dp"
-        android:columnCount="3"
-        android:rowCount="1"
-        app:layout_constraintBottom_toTopOf="@+id/textView5"
+
+    <Button
+        android:id="@+id/Sports"
+        android:layout_width="192dp"
+        android:layout_height="167dp"
+        android:layout_margin="5dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginEnd="17dp"
+        android:layout_marginRight="17dp"
+        android:layout_marginBottom="79dp"
+        android:background="@drawable/sports"
+        android:onClick="topicResult"
+        android:tag="Sports"
+        app:layout_constraintBottom_toTopOf="@+id/Technology"
+        app:layout_constraintEnd_toStartOf="@+id/Entertainment"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/Entertainment"
+        android:layout_width="192dp"
+        android:layout_height="167dp"
+        android:layout_margin="5dp"
+        android:layout_marginStart="11dp"
+        android:layout_marginLeft="11dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="79dp"
+        android:background="@drawable/entertainment"
+        android:onClick="topicResult"
+        android:tag="Entertainment"
+        app:layout_constraintBottom_toTopOf="@+id/Science"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.733"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView3">
+        app:layout_constraintStart_toEndOf="@+id/Sports" />
 
-
-        <Button
-            android:id="@+id/Technology"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_margin="5dp"
-            android:layout_marginLeft="17dp"
-            android:background="@drawable/technology"
-            android:onClick="topicResult"
-            android:tag="Technology" />
-
-        <Button
-            android:id="@+id/Health"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_margin="5dp"
-            android:layout_marginLeft="17dp"
-
-            android:onClick="topicResult"
-            android:tag="Health" />
-
-        <Button
-            android:id="@+id/Science"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_margin="5dp"
-            android:layout_marginLeft="17dp"
-            android:background="@drawable/science"
-            android:onClick="topicResult"
-            android:tag="Science" />
-    </GridLayout>
-
-    <GridLayout
-        android:id="@+id/gridLayout2"
-        android:layout_width="415dp"
-        android:layout_height="132dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginLeft="24dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginRight="24dp"
-        android:layout_marginBottom="213dp"
-        android:columnCount="3"
-        android:rowCount="1"
+    <Button
+        android:id="@+id/Business"
+        android:layout_width="192dp"
+        android:layout_height="167dp"
+        android:layout_margin="5dp"
+        android:layout_marginStart="11dp"
+        android:layout_marginLeft="11dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="64dp"
+        android:background="@drawable/business"
+        android:onClick="topicResult"
+        android:tag="General"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.733"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <Button
-            android:id="@+id/Sports"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_margin="5dp"
-            android:layout_marginLeft="17dp"
-            android:background="@drawable/sports"
-            android:onClick="topicResult"
-            android:tag="Sports" />
-
-        <Button
-            android:id="@+id/Entertainment"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_margin="5dp"
-            android:layout_marginLeft="17dp"
-            android:background="@drawable/entertainment"
-            android:onClick="topicResult"
-            android:tag="Entertainment" />
-
-        <Button
-            android:id="@+id/Business"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_margin="5dp"
-            android:layout_marginLeft="17dp"
-            android:background="@drawable/business"
-            android:onClick="topicResult"
-            android:tag="General" />
-
-    </GridLayout>
+        app:layout_constraintStart_toEndOf="@+id/Health" />
 
 
     <EditText
@@ -181,31 +118,20 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginTop="45dp"
+        android:layout_marginTop="28dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginBottom="37dp"
+        android:layout_marginBottom="658dp"
         android:ems="10"
         android:hint="Custom Search"
         android:inputType="textPersonName"
         android:onClick="editClick"
-        app:layout_constraintBottom_toTopOf="@+id/gridLayout"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
-
-    <TextView
-        android:id="@+id/textView8"
-        android:layout_width="83dp"
-        android:layout_height="27dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="45dp"
-        android:text="Technology"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/searchEditText" />
+        app:layout_constraintVertical_bias="1.0"
+        tools:visibility="visible" />
 
 </android.support.constraint.ConstraintLayout>

@@ -109,19 +109,16 @@ public class  BackgroundTask extends AsyncTask<String, Void, String> {
 
     public void downloadSummary(String address){
 
-
         URL url;
         HttpURLConnection connection;
         int data = 0;
         String summ = "";
 
-
         try {
 
-            if (exists("https://www.summarizebot.com/api/summarize?apiKey=31241703bbcd4c8999e1a588f4c67931&size=30&keywords=10&fragments=15&url=" + address)) {
+            if (exists("https://api.smmry.com/&SM_API_KEY=EF29A1A24B&SM_LENGTH=4&SM_URL=" + address)) {
 
-
-                url = new URL("https://www.summarizebot.com/api/summarize?apiKey=31241703bbcd4c8999e1a588f4c67931&size=30&keywords=10&fragments=15&url=" + address);
+                url = new URL("https://api.smmry.com/&SM_API_KEY=EF29A1A24B&SM_LENGTH=4&SM_URL=" + address);
                 try {
                     connection = (HttpURLConnection) url.openConnection();
                     InputStream in = connection.getInputStream();
@@ -140,23 +137,15 @@ public class  BackgroundTask extends AsyncTask<String, Void, String> {
                 }
 
                 if (summ != null) {
-                    JSONArray jArray = new JSONArray(summ);
-                    JSONObject jObject = null;
+
+                    JSONObject jObject = new JSONObject(summ);
 
                     String s1 = "";
                     String s2 = "";
 
-                    jObject = jArray.getJSONObject(0);
-                    s1 = jObject.getString("summary");
-
-                    JSONArray j2Array = new JSONArray(s1);
-
-                    for (int j = 0; j < j2Array.length(); j++) {
-                        JSONObject object2 = j2Array.getJSONObject(j);
-                        s2 += object2.getString("sentence");
-                    }
-
-                    Summaries.add(s2);
+                    s1 = jObject.getString("sm_api_content");
+                    Log.i("Summary", s1);
+                    Summaries.add(s1);
 
                 }
 
