@@ -9,6 +9,7 @@ import android.widget.ListView;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -18,16 +19,14 @@ import java.util.ArrayList;
 import static android.R.*;
 
 public class  BackgroundTask extends AsyncTask<String, Void, String> {
-
+    public int position;
     String title;
     String address = "";
     String jsonArrayName = "";
     String jsonArrayValue = "";
-    ListView trendingList;
     ArrayList<String> Stories = new ArrayList<>();
     ArrayList<String> Links = new ArrayList<>();
     ArrayList<String> Summaries = new ArrayList<>();
-
 
 
     @Override
@@ -40,7 +39,14 @@ public class  BackgroundTask extends AsyncTask<String, Void, String> {
     protected String doInBackground (String...urls){
         URL url;
         HttpURLConnection connection;
-        String result = "";
+
+        /* Use StringBuilder instead of String to concatenate data. For strings, each concat requires
+         * a new string to be created and allocates memory each time.
+         * With StringBuilder, the data is mutable - sequence of chars will be added to an updated
+         * array so that memory is allocated only when it exceeds buffer
+         */
+        StringBuilder result = new StringBuilder();
+
 
         try {
 
@@ -53,13 +59,13 @@ public class  BackgroundTask extends AsyncTask<String, Void, String> {
 
             while (data != -1) {
                 char c = (char) data;
-                result += c;
+                result.append(c);
                 data = reader.read();
             }
 
             try {
 
-                JSONObject jsonObject = new JSONObject(result);
+                JSONObject jsonObject = new JSONObject(String.valueOf(result));
                 JSONArray jsonArray = jsonObject.getJSONArray(jsonArrayName);
 
                 for (int i = 0; i < jsonArray.length() / 2; i++) {
@@ -72,6 +78,7 @@ public class  BackgroundTask extends AsyncTask<String, Void, String> {
 
                         Stories.add(title);
                         Links.add(address);
+                        Summaries.add("");
 
                     }
 
@@ -81,7 +88,7 @@ public class  BackgroundTask extends AsyncTask<String, Void, String> {
                 e.printStackTrace();
             }
 
-            return result;
+            return String.valueOf(result);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -107,61 +114,72 @@ public class  BackgroundTask extends AsyncTask<String, Void, String> {
 
 
 
-    public void downloadSummary(String address){
+    public void downloadSummary(final String address){
+        //Run on seperate thread instead of main thread
+        Thread thread = new Thread(new Runnable() {
 
-        URL url;
-        HttpURLConnection connection;
-        int data = 0;
-        String summ = "";
+            @Override
+            public void run() {
 
-        try {
+                URL url;
+                HttpURLConnection connection;
+                int data = 0;
+                StringBuilder summ = new StringBuilder();
 
-            if (exists("https://api.smmry.com/&SM_API_KEY=EF29A1A24B&SM_LENGTH=4&SM_URL=" + address)) {
-
-                url = new URL("https://api.smmry.com/&SM_API_KEY=EF29A1A24B&SM_LENGTH=4&SM_URL=" + address);
                 try {
-                    connection = (HttpURLConnection) url.openConnection();
-                    InputStream in = connection.getInputStream();
-                    InputStreamReader reader = new InputStreamReader(in);
-                    data = reader.read();
 
-                    while (data != -1) {
-                        char c = (char) data;
-                        summ += c;
-                        data = reader.read();
+                    if (exists("https://api.smmry.com/&SM_API_KEY=EF29A1A24B&SM_LENGTH=4&SM_URL=" + address)) {
+
+                         url = new URL("https://api.smmry.com/&SM_API_KEY=EF29A1A24B&SM_LENGTH=4&SM_URL=" + address);
+                        try {
+                            connection = (HttpURLConnection) url.openConnection();
+                            Log.i("SmmryLink","https://api.smmry.com/&SM_LENGTH=4&SM_API_KEY=EF29A1A24B&SM_LENGTH=4&SM_URL=" + address );
+                            InputStream in = connection.getInputStream();
+                            InputStreamReader reader = new InputStreamReader(in);
+                            data = reader.read();
+
+                            while (data != -1) {
+                                char c = (char) data;
+                                summ.append(c);
+                                data = reader.read();
+                            }
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+
+                        }
+
+                        if (summ != null) {
+
+                            JSONObject jObject = new JSONObject(String.valueOf(summ));
+
+                            String s1 = "";
+
+                            s1 = jObject.getString("sm_api_content");
+                            Log.i("Summary", s1);
+                            Summaries.set(position, s1);
+
+                        }
+
                     }
+
 
                 } catch (Exception e) {
                     e.printStackTrace();
-
-                }
-
-                if (summ != null) {
-
-                    JSONObject jObject = new JSONObject(summ);
-
-                    String s1 = "";
-                    String s2 = "";
-
-                    s1 = jObject.getString("sm_api_content");
-                    Log.i("Summary", s1);
-                    Summaries.add(s1);
-
                 }
 
             }
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        });
+        thread.start();
 
     }
 
 
     @Override
     protected void onPostExecute(String result) {
-
+        for(int i=0; i<Links.size(); i++){
+            Summaries.add("");
+        }
         super.onPostExecute(result);
 
     }

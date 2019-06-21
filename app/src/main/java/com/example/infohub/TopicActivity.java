@@ -77,17 +77,25 @@ public class TopicActivity extends AppCompatActivity {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 try {
-                    summaries.get(position);
-                    new AlertDialog.Builder(TopicActivity.this)
-                            .setTitle("Summary")
-                            .setMessage(summaries.get(position))
-                            .setPositiveButton("Close", null).show();
+
+                    if(task.Summaries.get(position) == "") {
+                        String link = task.Links.get(position);
+                        task.position = position;
+                        task.downloadSummary(link);
+                        adapter.notifyDataSetChanged();
+                    } //else if(task.Links.get(position) ) {
+
+                    //}
+                    else {
+                        new AlertDialog.Builder(TopicActivity.this)
+                                .setTitle("Summary")
+                                .setMessage(task.Summaries.get(position))
+                                .setPositiveButton("Close", null).show();
+                    }
+
 
                 } catch (Exception e) {
 
-                    String link = links.get(position);
-                    //task.downloadSummary(link);
-                    adapter.notifyDataSetChanged();
 
                 }
 

@@ -47,10 +47,8 @@ import java.util.ArrayList;
 
 /* TODO
 * Find a way to show dialog
-* Implement new summary API
 * Weather, stocks
 * Allow users to save articles
-* Fix image render on CategoryActivity
  */
 
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -73,13 +71,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        /*This is dangerous, allows UI to be updated from background thread
-        *Only purpose of this is to get summary of each article once user requests
-        *Used for testing until I can find a better way
-        */
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
 
         //Side panel
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -131,19 +122,24 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
                 try {
 
-                    task.Summaries.get(position);
 
-                    new AlertDialog.Builder(HomeActivity.this)
-                            .setTitle("Summary")
-                            .setMessage(task.Summaries.get(position))
-                            .setPositiveButton("Close", null).show();
+                    if(task.Summaries.get(position) == "") {
+                        Toast.makeText(getApplicationContext(),"Downloading...",Toast.LENGTH_SHORT).show();
+                        String link = task.Links.get(position);
+                        task.position = position;
+                        task.downloadSummary(link);
+                        adapter.notifyDataSetChanged();
+                    }
+                    else {
+                        new AlertDialog.Builder(HomeActivity.this)
+                                .setTitle("Summary")
+                                .setMessage(task.Summaries.get(position))
+                                .setPositiveButton("Close", null).show();
+                    }
 
                 } catch (Exception e) {
 
                     // database.execSQL("INSERT INTO trending (name, address) VALUES ('" + title + "','" + address + "')");
-                    String link = task.Links.get(position);
-                    task.downloadSummary(link);
-                    adapter.notifyDataSetChanged();
 
                 }
                 return true;
