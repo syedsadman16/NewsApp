@@ -33,7 +33,7 @@ public class NewsSources extends AppCompatActivity {
     ArrayList<String> articleNames = new ArrayList<>();
     ArrayList<String> articleLinks = new ArrayList<>();
     BackgroundTask task;
-    ArrayAdapter adapter;
+    CustomAdapter adapter;
     String result = "";
 
     @Override
@@ -50,7 +50,7 @@ public class NewsSources extends AppCompatActivity {
           task.jsonArrayValue = "name";
           task.execute("https://newsapi.org/v2/sources?language=en&country=us&apiKey=5040cea2678445de93e1a6862c5aeeb3").get();
           listView = findViewById(R.id.listView);
-          adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, task.Stories);
+          adapter = new CustomAdapter(this, R.layout.list_view_layout, task.details);
           listView.setAdapter(adapter);
           adapter.notifyDataSetChanged();
 

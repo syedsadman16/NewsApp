@@ -46,18 +46,17 @@ import java.util.ArrayList;
 
 
 /* TODO
-* Find a way to show dialog
-* Weather, stocks
-* Allow users to save articles
+See commit logs
  */
 
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     SQLiteDatabase database;
     ListView trendingList;
-    ArrayAdapter adapter;
+    CustomAdapter adapter;
     BackgroundTask task;
-
+    ProgressBar loading;
+    ListViewDetails ListViewDetails;
 
 
     @Override
@@ -75,13 +74,15 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         //Side panel
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
+        //Init views
+        trendingList = findViewById(R.id.trendingList);
+        loading = (ProgressBar) findViewById(R.id.loadingAnimation);
 
         //Declare new instance of background class
         task = new BackgroundTask();
@@ -93,14 +94,18 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             task.jsonArrayValue = "title";
             //Do the background stuff
             task.execute("https://newsapi.org/v2/top-headlines?country=us&apiKey=5040cea2678445de93e1a6862c5aeeb3").get();
-            //Setup the listviews and adapter
-            trendingList = findViewById(R.id.trendingList);
-            //Set adapter to stories array in the background task
-            adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, task.Stories);
+
+            //set adapter to populate list with the article titles
+            adapter = new CustomAdapter(this, R.layout.list_view_layout,task.details);
+
+            //Set list to adapter
             trendingList.setAdapter(adapter);
+            //When list is empty
+            trendingList.setEmptyView(loading);
             //Update listView
             adapter.notifyDataSetChanged();
             //updateWeather();
+
         } catch (Exception e) {
             e.printStackTrace();
         }

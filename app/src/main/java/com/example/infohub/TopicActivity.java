@@ -31,7 +31,7 @@ public class TopicActivity extends AppCompatActivity {
     ListView listView;
     ArrayList<String> links = new ArrayList<>();
     ArrayList<String> summaries = new ArrayList<>();
-    ArrayAdapter adapter;
+    CustomAdapter adapter;
     Intent intent;
     TextView updatetopicName;
 
@@ -52,7 +52,7 @@ public class TopicActivity extends AppCompatActivity {
             task.execute("https://newsapi.org/v2/top-headlines?country=us&category="+ topic +"&apiKey=5040cea2678445de93e1a6862c5aeeb3").get();
             listView = findViewById(R.id.topicListView);
             //Set listview with data from DownloadTask
-            adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, task.Stories);
+            adapter = new CustomAdapter(this, R.layout.list_view_layout, task.details);
             listView.setAdapter(adapter);
             updatetopicName = findViewById(R.id.updatetopicName);
             updatetopicName.setText(topic);

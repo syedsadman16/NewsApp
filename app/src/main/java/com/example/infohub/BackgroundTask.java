@@ -15,6 +15,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
 import static android.R.*;
 
@@ -22,11 +23,15 @@ public class  BackgroundTask extends AsyncTask<String, Void, String> {
     public int position;
     String title;
     String address = "";
+    String imageURL = "";
     String jsonArrayName = "";
     String jsonArrayValue = "";
     ArrayList<String> Stories = new ArrayList<>();
     ArrayList<String> Links = new ArrayList<>();
     ArrayList<String> Summaries = new ArrayList<>();
+    ArrayList<ListViewDetails> details = new ArrayList<>();
+
+
 
 
     @Override
@@ -75,9 +80,20 @@ public class  BackgroundTask extends AsyncTask<String, Void, String> {
 
                         title = content.getString(jsonArrayValue);
                         address = content.getString("url");
+                        if(!content.isNull("urlToImage")) {
+                            imageURL = content.getString("urlToImage");
+                        } else {
+                            imageURL = "https://upload.wikimedia.org/wikipedia/commons/1/15/No_image_available_600_x_450.svg";
+                        }
+                        Log.i("URL", imageURL);
+                        ListViewDetails listViewDetails = new ListViewDetails(title,imageURL);
+                        details.add(listViewDetails);
 
-                        Stories.add(title);
+                       // Stories.add(title);
                         Links.add(address);
+
+
+
                         Summaries.add("");
 
                     }
@@ -177,6 +193,7 @@ public class  BackgroundTask extends AsyncTask<String, Void, String> {
 
     @Override
     protected void onPostExecute(String result) {
+        //Fill up array with empty strings so articles can be put in any position
         for(int i=0; i<Links.size(); i++){
             Summaries.add("");
         }
