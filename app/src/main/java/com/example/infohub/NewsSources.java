@@ -42,7 +42,7 @@ public class NewsSources extends AppCompatActivity {
         setContentView(R.layout.activity_news_sources);
 
         filterList = (EditText) findViewById(R.id.filterText);
-
+        setTitle("News Sources");
 
         task = new BackgroundTask();
         try {

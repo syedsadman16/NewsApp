@@ -4,43 +4,27 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorButtonNormal"
+    android:background="#F4F4F4"
     tools:context=".TopicActivity">
 
 
     <ListView
         android:id="@+id/topicListView"
         android:layout_width="381dp"
-        android:layout_height="483dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginBottom="32dp"
+        android:layout_height="625dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="78dp"
+        android:layout_marginEnd="19dp"
+        android:layout_marginRight="19dp"
+        android:layout_marginBottom="28dp"
         android:background="@android:color/background_light"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/updatetopicName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="120dp"
-        android:layout_marginLeft="120dp"
-        android:layout_marginTop="29dp"
-        android:layout_marginEnd="152dp"
-        android:layout_marginRight="152dp"
-        android:layout_marginBottom="44dp"
-        android:text="TextView"
-        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-        android:textColor="@android:color/background_dark"
-        app:fontFamily="sans-serif"
-        app:layout_constraintBottom_toTopOf="@+id/topicListView"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.406" />
+        app:layout_constraintTop_toTopOf="parent" />
 
 
 </android.support.constraint.ConstraintLayout>

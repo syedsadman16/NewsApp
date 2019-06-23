@@ -4,45 +4,29 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/background_light"
+    android:background="#F4F4F4"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".HomeActivity"
     tools:showIn="@layout/app_bar_home">
 
-    <View
-        android:id="@+id/weather_background"
-        android:layout_width="387dp"
-        android:layout_height="100dp"
-        android:layout_alignParentTop="true"
-        android:layout_marginStart="32dp"
-        android:layout_marginLeft="32dp"
-        android:layout_marginTop="47dp"
-        android:layout_marginEnd="32dp"
-        android:layout_marginRight="32dp"
-        android:layout_marginBottom="531dp"
-        android:background="@android:color/background_light"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.6"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <ListView
         android:id="@+id/trendingList"
-        android:layout_width="382dp"
-        android:layout_height="500dp"
+        android:layout_width="381dp"
+        android:layout_height="587dp"
         android:layout_marginStart="15dp"
         android:layout_marginLeft="15dp"
-        android:layout_marginTop="200dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="19dp"
         android:layout_marginRight="19dp"
-        android:layout_marginBottom="50dp"
-        android:background="@android:color/background_light"
+        android:layout_marginBottom="28dp"
+        android:background="#F3F3F3"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/trendingTextVIew" />
 
     <ProgressBar
         android:id="@+id/loadingAnimation"
@@ -58,16 +42,15 @@
         android:layout_height="30dp"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginTop="72dp"
-        android:layout_marginEnd="251dp"
-        android:layout_marginRight="251dp"
+        android:layout_marginTop="100dp"
+        android:layout_marginEnd="243dp"
+        android:layout_marginRight="243dp"
+        android:layout_marginBottom="16dp"
         android:text="@string/trending_news"
         android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-        app:layout_constraintBottom_toTopOf="@+id/weather_background"
+        app:layout_constraintBottom_toTopOf="@+id/trendingList"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.285" />
+        app:layout_constraintTop_toTopOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

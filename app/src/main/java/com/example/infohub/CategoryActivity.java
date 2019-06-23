@@ -12,7 +12,7 @@ import android.widget.EditText;
 public class CategoryActivity extends AppCompatActivity {
 
     //Class functionality in TopicActivity.java
-
+    Intent intent;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,6 +38,12 @@ public class CategoryActivity extends AppCompatActivity {
         });
         }
 
+    @Override
+    public void onBackPressed() {
+        intent = new Intent(getApplicationContext(), HomeActivity.class);
+        startActivity(intent);
+        super.onBackPressed();
+    }
 
     //Loaded in TopicActivity.java
     public void topicResult(View view){

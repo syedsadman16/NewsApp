@@ -17,7 +17,7 @@ The app has the following features:
 * [x] Users can hold the article title to get a quick summary
 * [x] Multiple topics and news sources
 * [ ] Option to save and share favorite articles
-* [ ] News and Stock updates
+
 
 
 Summary Demo             |  Sources
@@ -34,15 +34,15 @@ Summary Demo             |  Sources
 
 *#TODO*
 * Show dialog during background processes
-* Add custom images and titles for each article - visually appealing
 * Implement databases
-* Add news options if possible
-* Find an alternative to the summary background task
-* Improve performance
+* Save favorite articles
+
+
+
 
 ## License
 
-    Copyright [yyyy] [name of copyright owner]
+    Copyright [2019] [Syed Sadman]
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.

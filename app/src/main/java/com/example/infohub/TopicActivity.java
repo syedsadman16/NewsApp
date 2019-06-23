@@ -33,7 +33,7 @@ public class TopicActivity extends AppCompatActivity {
     ArrayList<String> summaries = new ArrayList<>();
     CustomAdapter adapter;
     Intent intent;
-    TextView updatetopicName;
+ //   TextView updatetopicName;
 
 
     @Override
@@ -54,8 +54,9 @@ public class TopicActivity extends AppCompatActivity {
             //Set listview with data from DownloadTask
             adapter = new CustomAdapter(this, R.layout.list_view_layout, task.details);
             listView.setAdapter(adapter);
-            updatetopicName = findViewById(R.id.updatetopicName);
-            updatetopicName.setText(topic);
+            setTitle(topic + " News");
+            //updatetopicName = findViewById(R.id.updatetopicName);
+            //updatetopicName.setText(topic);
             //Update list
             adapter.notifyDataSetChanged();
 
