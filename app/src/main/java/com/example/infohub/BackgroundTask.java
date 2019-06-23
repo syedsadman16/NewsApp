@@ -83,7 +83,7 @@ public class  BackgroundTask extends AsyncTask<String, Void, String> {
                         if(!content.isNull("urlToImage")) {
                             imageURL = content.getString("urlToImage");
                         } else {
-                            imageURL = "https://upload.wikimedia.org/wikipedia/commons/1/15/No_image_available_600_x_450.svg";
+                            imageURL = "https://fastmac.org/wp-content/uploads/2018/04/The-News-App-840x400.jpg";
                         }
                         Log.i("URL", imageURL);
                         ListViewDetails listViewDetails = new ListViewDetails(title,imageURL);

@@ -49,7 +49,7 @@ public class CategoryActivity extends AppCompatActivity {
         switch(option){
             case "Technology":
                 intent = new Intent(getApplicationContext(), TopicActivity.class);
-                intent.putExtra("topic", "technology");
+                intent.putExtra("topic", "Technology");
                 Log.i("Intent", "topic");
                 startActivity(intent);
                 finish();
@@ -57,31 +57,31 @@ public class CategoryActivity extends AppCompatActivity {
                 //break;
             case "General":
                 intent = new Intent(getApplicationContext(), TopicActivity.class);
-                intent.putExtra("topic", "business");
+                intent.putExtra("topic", "Business");
                 startActivity(intent);
                 finish();
                 return;
             case "Health":
                 intent = new Intent(getApplicationContext(), TopicActivity.class);
-                intent.putExtra("topic", "health");
+                intent.putExtra("topic", "Health");
                 startActivity(intent);
                 finish();
                 return;
             case "Science":
                 intent = new Intent(getApplicationContext(), TopicActivity.class);
-                intent.putExtra("topic", "science");
+                intent.putExtra("topic", "Science");
                 startActivity(intent);
                 finish();
                 return;
             case "Sports":
                 intent = new Intent(getApplicationContext(), TopicActivity.class);
-                intent.putExtra("topic", "sports");
+                intent.putExtra("topic", "Sports");
                 startActivity(intent);
                 finish();
                 return;
             case "Entertainment":
                 intent = new Intent(getApplicationContext(), TopicActivity.class);
-                intent.putExtra("topic", "entertainment");
+                intent.putExtra("topic", "Entertainment");
                 startActivity(intent);
                 finish();
                 return;
