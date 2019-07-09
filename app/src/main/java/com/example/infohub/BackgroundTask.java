@@ -85,15 +85,11 @@ public class  BackgroundTask extends AsyncTask<String, Void, String> {
                         } else {
                             imageURL = "https://fastmac.org/wp-content/uploads/2018/04/The-News-App-840x400.jpg";
                         }
+
                         Log.i("URL", imageURL);
-                        ListViewDetails listViewDetails = new ListViewDetails(title,imageURL);
+                        //Create object and add it to array so it doesn't over-write every time
+                        ListViewDetails listViewDetails = new ListViewDetails(title,imageURL,address);
                         details.add(listViewDetails);
-
-                       // Stories.add(title);
-                        Links.add(address);
-
-
-
                         Summaries.add("");
 
                     }

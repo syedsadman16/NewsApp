@@ -1,20 +1,7 @@
 package com.example.infohub;
 
-import android.app.Dialog;
-import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.StrictMode;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
@@ -27,22 +14,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
 
 
 /* TODO
@@ -51,7 +25,6 @@ See commit logs
 
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    SQLiteDatabase database;
     ListView trendingList;
     CustomAdapter adapter;
     BackgroundTask task;
@@ -63,10 +36,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-
-       //When setting up databases
-       // database = this.openOrCreateDatabase("NewsDB", MODE_PRIVATE, null);
-       // database.execSQL("CREATE TABLE IF NOT EXISTS trending (name VARCHAR, address VARCHAR, id INTEGER PRIMARY KEY)");
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -81,7 +50,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         toggle.syncState();
 
         //Init views
-        trendingList = findViewById(R.id.trendingList);
+        trendingList = findViewById(R.id.favorites_list);
         loading = (ProgressBar) findViewById(R.id.loadingAnimation);
 
         //Declare new instance of background class
@@ -104,7 +73,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             trendingList.setEmptyView(loading);
             //Update listView
             adapter.notifyDataSetChanged();
-            //updateWeather();
+
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -114,8 +83,11 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         trendingList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                String link = task.details.get(position).getLink();
+
                 Intent intent = new Intent(getApplicationContext(), WebActivity.class);
-                intent.putExtra("URL", task.Links.get(position));
+                intent.putExtra("URL", link);
                 startActivity(intent);
             }
         });
@@ -124,9 +96,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         trendingList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-
-                try {
-
 
                     if(task.Summaries.get(position) == "") {
                         Toast.makeText(getApplicationContext(),"Downloading...",Toast.LENGTH_SHORT).show();
@@ -142,11 +111,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                                 .setPositiveButton("Close", null).show();
                     }
 
-                } catch (Exception e) {
-
-                    // database.execSQL("INSERT INTO trending (name, address) VALUES ('" + title + "','" + address + "')");
-
-                }
                 return true;
             }
         });
@@ -216,7 +180,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             }
         }
         else if (id == R.id.favorites) {
-            Toast.makeText(getApplicationContext(), "Coming Soon", Toast.LENGTH_LONG).show();
+            Intent fav = new Intent(getApplicationContext(), FavoritesActivity.class);
+            startActivity(fav);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -224,86 +189,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-/*
-    public void updateContent(){
-        Cursor cursor = database.rawQuery("SELECT * FROM trending", null);
-
-        //Pull from database
-        int nameIndex = cursor.getColumnIndex("name");
-        int addressIndex = cursor.getColumnIndex("address");
-
-        if(cursor.moveToFirst()){
-            homeStories.clear();
-            homeLinks.clear();
-            Log.i("name", cursor.getString(nameIndex));
-            Log.i("address", cursor.getString(addressIndex));
-        }
-
-        if(cursor.getCount() > 0) {
-            do {
-                homeStories.add(cursor.getString(nameIndex));
-                homeLinks.add(cursor.getString(addressIndex));
-            } while (cursor.moveToNext());
-        } else {
-            Log.e("Cursor", "Cursor is Empty");
-        }
-
-        adapter.notifyDataSetChanged();
-    }
-*/
-
-/*
-**When enabling weather options into app
-*
-    public void updateWeather(){
-
-    URL url;
-    HttpURLConnection connection;
-    String weatherData = "";
-    try {
-        //add url
-        url = new URL("https://samples.openweathermap.org/data/2.5/weather?q=London,uk&appid=b6907d289e10d714a6e88b30761fae22");
-       // url = new URL("https://api.openweathermap.org/data/2.5/forecast?q=detroit&appid=1f02d456968e25491936d3c826d78b88");
-        //open connection
-        connection = (HttpURLConnection) url.openConnection();
-        //get input stream and reader
-        InputStream in = connection.getInputStream();
-        InputStreamReader reader = new InputStreamReader(in);
-        //set up read data
-        int data = reader.read();
-        //get all characters
-        while(data != -1){
-            char convert = (char) data;
-            weatherData += convert;
-            data = reader.read();
-        }
-
-            TextView text = findViewById(R.id.weathertest);
-            //convert weatherData contents to json
-            JSONObject weatherJSON = new JSONObject(weatherData);
-            //locate "weather" object identify it as array from json
-            JSONArray dataArray = weatherJSON.getJSONArray("weather");
-            //Go into array and pull data
-            for(int i = 0; i < dataArray.length(); i++) {
-                //turn incoming data into json
-                JSONObject incoming = dataArray.getJSONObject(i);
-                //put values into variables
-                String main = incoming.getString("main");
-                text.setText(main);
-                Log.i("Main:", main);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-            //Unknown city handler
-            Toast.makeText(getApplicationContext(), "Undefined location. Try again", Toast.LENGTH_LONG).show();
-        } catch (MalformedURLException e) {
-        e.printStackTrace();
-    } catch (IOException e) {
-        e.printStackTrace();
-    }
-
-}
-*/
 
 
 }

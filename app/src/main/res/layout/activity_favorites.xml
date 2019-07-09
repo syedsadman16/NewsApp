@@ -32,7 +32,9 @@
         android:layout_width="139dp"
         android:layout_height="152dp"
         android:layout_centerInParent="true"
-        tools:layout_editor_absoluteX="123dp"
-        tools:layout_editor_absoluteY="297dp" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

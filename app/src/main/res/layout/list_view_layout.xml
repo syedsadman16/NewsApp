@@ -5,7 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/background_light"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:clickable="false"
+    android:descendantFocusability="blocksDescendants"
+    android:focusable="false"
+    android:focusableInTouchMode="false">
 
 
     <ImageView
@@ -14,7 +18,10 @@
         android:layout_height="200dp"
         android:background="@android:color/background_light"
         android:scaleType="fitXY"
-        tools:srcCompat="@tools:sample/avatars" />
+        tools:srcCompat="@tools:sample/avatars"
+        android:clickable="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"/>
 
     <TextView
         android:id="@+id/textView"
@@ -28,7 +35,10 @@
         android:text="[test]"
         android:textAlignment="inherit"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        android:textColor="#050000" />
+        android:textColor="#050000"
+        android:clickable="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"/>
 
     <Button
         android:id="@+id/saveBtn"
