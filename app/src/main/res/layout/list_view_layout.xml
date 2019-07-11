@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout"
     android:layout_width="match_parent"
@@ -17,28 +18,29 @@
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:background="@android:color/background_light"
-        android:scaleType="fitXY"
-        tools:srcCompat="@tools:sample/avatars"
         android:clickable="false"
         android:focusable="false"
-        android:focusableInTouchMode="false"/>
+        android:focusableInTouchMode="false"
+        android:scaleType="centerCrop"
+        tools:srcCompat="@tools:sample/avatars" />
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         android:layout_marginLeft="5dp"
+        android:layout_marginTop="10dp"
         android:layout_marginRight="5dp"
         android:layout_marginBottom="2dp"
         android:background="@android:color/background_light"
+        android:clickable="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
         android:text="[test]"
         android:textAlignment="inherit"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         android:textColor="#050000"
-        android:clickable="false"
-        android:focusable="false"
-        android:focusableInTouchMode="false"/>
+        app:fontFamily="sans-serif-black" />
 
     <Button
         android:id="@+id/saveBtn"

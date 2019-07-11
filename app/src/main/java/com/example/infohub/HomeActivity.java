@@ -83,9 +83,9 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         trendingList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
+                //Get link from news object in this position
                 String link = task.details.get(position).getLink();
-
+                //Pass it to intent and launch web
                 Intent intent = new Intent(getApplicationContext(), WebActivity.class);
                 intent.putExtra("URL", link);
                 startActivity(intent);
@@ -99,8 +99,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
                     if(task.Summaries.get(position) == "") {
                         Toast.makeText(getApplicationContext(),"Downloading...",Toast.LENGTH_SHORT).show();
-                        String link = task.Links.get(position);
-                        task.position = position;
+                        String link = task.details.get(position).getLink();
                         task.downloadSummary(link);
                         adapter.notifyDataSetChanged();
                     }

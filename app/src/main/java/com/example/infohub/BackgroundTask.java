@@ -57,7 +57,6 @@ public class  BackgroundTask extends AsyncTask<String, Void, String> {
 
             url = new URL(urls[0]);
             connection = (HttpURLConnection) url.openConnection();
-            // connection.setRequestMethod("GET");
             InputStream in = connection.getInputStream();
             InputStreamReader reader = new InputStreamReader(in);
             int data = reader.read();
@@ -91,7 +90,6 @@ public class  BackgroundTask extends AsyncTask<String, Void, String> {
                         ListViewDetails listViewDetails = new ListViewDetails(title,imageURL,address);
                         details.add(listViewDetails);
                         Summaries.add("");
-
                     }
 
                 }

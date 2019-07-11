@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.lang.invoke.CallSite;
 
@@ -67,15 +68,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public Cursor getID(ListViewDetails listViewDetails){
         SQLiteDatabase db = this.getWritableDatabase();
+        String title = listViewDetails.getTitle().replace("'","''");
         String sql = "SELECT * FROM " + TABLE_NAME + " WHERE " +
-                COL1 + " = '" + listViewDetails.getLink() + "'";
+                COL1 + " = '" + title + "'" +
+                " AND " + COL2 + " = '" + listViewDetails.getPicture() + "'";
+
         return db.rawQuery(sql,null);
     }
 
-    //Will delete 1 row
+    //Refers to ID in database
+    //Returns the number of rows deleted - 1 row
     public Integer delete(int id) {
         SQLiteDatabase db = this.getWritableDatabase();
-        return db.delete(TABLE_NAME, "ID = ?", new String[] {String.valueOf(id)});
+        return db.delete(TABLE_NAME, "ID = ?", new String[]{String.valueOf(id)});
     }
 
 }

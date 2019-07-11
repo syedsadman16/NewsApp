@@ -27,13 +27,10 @@ import java.util.ArrayList;
 public class TopicActivity extends AppCompatActivity {
 
     BackgroundTask task;
-    SQLiteDatabase database;
     ListView listView;
-    ArrayList<String> links = new ArrayList<>();
-    ArrayList<String> summaries = new ArrayList<>();
     CustomAdapter adapter;
     Intent intent;
- //   TextView updatetopicName;
+
 
 
     @Override
@@ -55,8 +52,6 @@ public class TopicActivity extends AppCompatActivity {
             adapter = new CustomAdapter(this, R.layout.list_view_layout, task.details);
             listView.setAdapter(adapter);
             setTitle(topic + " News");
-            //updatetopicName = findViewById(R.id.updatetopicName);
-            //updatetopicName.setText(topic);
             //Update list
             adapter.notifyDataSetChanged();
 
@@ -77,28 +72,20 @@ public class TopicActivity extends AppCompatActivity {
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                try {
+
 
                     if(task.Summaries.get(position) == "") {
                         String link = task.Links.get(position);
                         task.position = position;
                         task.downloadSummary(link);
                         adapter.notifyDataSetChanged();
-                    } //else if(task.Links.get(position) ) {
-
-                    //}
+                    }
                     else {
                         new AlertDialog.Builder(TopicActivity.this)
                                 .setTitle("Summary")
                                 .setMessage(task.Summaries.get(position))
                                 .setPositiveButton("Close", null).show();
                     }
-
-
-                } catch (Exception e) {
-
-
-                }
 
                 return true;
             }
